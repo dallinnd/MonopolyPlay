@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Monopoly Sync</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Player Header -->
+        <header class="player-header">
+            <div class="player-info">
+                <div class="avatar-badge swag-bg" style="width: 60px;height: 60px; font-size: 45px;">😎</div>
+                <div class="player-details">
+                    <h2 class="player-name">Swag</h2>
+                </div>
+            </div>
+            <button class="bank-btn">
+                <span class="bank-icon">🏦</span>
+            </button>
+        </header>
+
+        <!-- Avatar Selection Ribbon -->
+        <section class="avatar-ribbon">
+            <div class="avatar-item">
+                <div class="avatar-badge giggles-bg">😂</div>
+                <span>Giggles</span>
+            </div>
+            <div class="avatar-item">
+                <div class="avatar-badge hearts-bg">😍</div>
+                <span>Hearts</span>
+            </div>
+            <div class="avatar-item">
+                <div class="avatar-badge blush-bg">😊</div>
+                <span>Blush</span>
+            </div>
+            <div class="avatar-item">
+                <div class="avatar-badge party-bg">🥳</div>
+                <span>Party</span>
+            </div>
+            <div class="avatar-item">
+                <div class="avatar-badge freeze-bg">🥶</div>
+                <span>Freeze</span>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active">My Assets</button>
+            <button class="tab-btn">Market</button>
+            <button class="tab-btn">Transactions</button>
+        </nav>
+        <span class="break-line"></span>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            
+            <!-- View: My Assets -->
+            <section id="view-my-assets" class="tab-content active">
+                <button class="request-property-btn">
+                    Request New<br>Property from Bank
+                </button>
+
+                <div class="property-grid">
+                    <div class="property-card">
+                        <div class="property-header light-blue">
+                            <h3>Oriental Avenue</h3>
+                        </div>
+                        <div class="property-body">
+                            <span class="rent-label">Rent</span>
+                            <h2 class="rent-price">$30</h2>
+                        </div>
+                        <div class="upgrade-status">
+                            <span class="house light-blue-text"></span>
+                            <span class="house-icon light-blue-text">⌂</span>
+                            <span class="arrow-icon">⬆</span>
+                        </div>
+                    </div>
+
+                    <div class="property-card">
+                        <div class="property-header pink">
+                            <h3>Virginia Avenue</h3>
+                        </div>
+                        <div class="property-body">
+                            <span class="rent-label">Rent</span>
+                            <h2 class="rent-price">$180</h2>
+                        </div>
+                        <div class="upgrade-status">
+                            <span class="house-icon pink-text">⌂⌂</span>
+                            <span class="arrow-icon">⬆</span>
+                        </div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <div class="property-header dark-blue">
+                            <h3>Park Place</h3>
+                        </div>
+                        <div class="property-body">
+                            <span class="rent-label">Rent</span>
+                            <h2 class="rent-price">$35</h2>
+                        </div>
+                        <div class="upgrade-status">
+                            <span class="house-icon dark-blue-text">‎</span>
+                            <span class="arrow-icon">⬆</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Market -->
+            <section id="view-market" class="tab-content hidden">
+                <div class="market-container">
+                    <div class="market-header">
+                        <div class="col-property">Property</div>
+                        <div class="col-owner">Owner</div>
+                        <div class="col-rent">Rent</div>
+                    </div>
+                    <div class="market-list">
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar brown"></div>
+                                <span class="prop-name">Mediterranean<br>Avenue</span>
+                            </div>
+                            <div class="col-owner">Giggles</div>
+                            <div class="col-rent">$2</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar brown"></div>
+                                <span class="prop-name">Baltic Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$4</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar light-blue"></div>
+                                <span class="prop-name">Oriental Avenue</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$30</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar light-blue"></div>
+                                <span class="prop-name">Vermont Avenue</span>
+                            </div>
+                            <div class="col-owner">Hearts</div>
+                            <div class="col-rent">$6</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar light-blue"></div>
+                                <span class="prop-name">Connecticut<br>Avenue</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$100</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar pink"></div>
+                                <span class="prop-name">St. Charles<br>Place</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$10</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar pink"></div>
+                                <span class="prop-name">States Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$10</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar pink"></div>
+                                <span class="prop-name">Virginia Avenue</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$180</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar orange"></div>
+                                <span class="prop-name">St. James<br>Place</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$14</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar orange"></div>
+                                <span class="prop-name">Tennessee<br>Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$14</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar orange"></div>
+                                <span class="prop-name">New York<br>Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$16</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar red"></div>
+                                <span class="prop-name">Kentucky<br>Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$18</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar red"></div>
+                                <span class="prop-name">Indiana Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$18</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar red"></div>
+                                <span class="prop-name">Illinois Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$20</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar yellow"></div>
+                                <span class="prop-name">Atlantic Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$22</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar yellow"></div>
+                                <span class="prop-name">Ventnor Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$22</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar yellow"></div>
+                                <span class="prop-name">Marvin Gardens</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$24</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar green"></div>
+                                <span class="prop-name">Pacific Avenue</span>
+                            </div>
+                            <div class="col-owner"></div>
+                            <div class="col-rent">$26</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar green"></div>
+                                <span class="prop-name">North Carolina<br>Avenue</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$130</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar green"></div>
+                                <span class="prop-name">Pennsylvania<br>Avenue</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$28</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar dark-blue"></div>
+                                <span class="prop-name">Park Place</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$35</div>
+                        </div>
+                        <div class="market-item">
+                            <div class="col-property">
+                                <div class="prop-color-bar dark-blue"></div>
+                                <span class="prop-name">Boardwalk</span>
+                            </div>
+                            <div class="col-owner">Swag</div>
+                            <div class="col-rent">$200</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Transactions -->
+            <section id="view-transactions" class="tab-content hidden">
+                <div class="transactions-container">
+                    <div class="transaction-header">
+                        <div class="col-from">From</div>
+                        <div class="col-to">To</div>
+                        <div class="col-amount">Amount</div>
+                        <div class="col-details">Details</div>
+                    </div>
+                    <div class="transaction-list">
+                        <div class="transaction-item">
+                            <div class="col-from">Swag</div>
+                            <div class="col-to">Giggles</div>
+                            <div class="col-amount">$2</div>
+                            <div class="col-details">Rent:<br>Mediterranean...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Giggles</div>
+                            <div class="col-to">Swag</div>
+                            <div class="col-amount">$130</div>
+                            <div class="col-details">Rent:<br>North Carolina...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Giggles</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$---</div>
+                            <div class="col-details">Purchase:<br>Mediterranean...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Swag</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$100</div>
+                            <div class="col-details">Purchase:<br>Oriental Avenu...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Hearts</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$---</div>
+                            <div class="col-details">Rent:<br>Connecticut A...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Swag</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$---</div>
+                            <div class="col-details">Upgrade:<br>North Carolina...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Swag</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$300</div>
+                            <div class="col-details">Purchase:<br>North Carolina...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Hearts</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$---</div>
+                            <div class="col-details">Upgrade:<br>Connecticut A...</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Bank</div>
+                            <div class="col-to">Swag</div>
+                            <div class="col-amount">$200</div>
+                            <div class="col-details">Pass Go:<br>Salary Collection</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Hearts</div>
+                            <div class="col-to">Swag</div>
+                            <div class="col-amount">$35</div>
+                            <div class="col-details">Rent:<br>Park Place</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Giggles</div>
+                            <div class="col-to">Hearts</div>
+                            <div class="col-amount">$24</div>
+                            <div class="col-details">Rent:<br>Marvin Gardens</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Swag</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$150</div>
+                            <div class="col-details">Upgrade:<br>Virginia Avenue</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Swag</div>
+                            <div class="col-to">Bank</div>
+                            <div class="col-amount">$75</div>
+                            <div class="col-details">Luxury Tax:<br>Payment</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="col-from">Bank</div>
+                            <div class="col-to">Giggles</div>
+                            <div class="col-amount">$200</div>
+                            <div class="col-details">Pass Go:<br>Salary Collection</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals (Popups) -->
+        
+        <!-- Property Info Modal -->
+        <div id="property-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header green">
+                    <button class="close-btn">⬅</button>
+                    <h2 class="modal-title">North Carolina<br>Avenue</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="owner-status">
+                        <div class="owner-badge">
+                            <div class="avatar-badge swag-bg small-avatar">😎</div>
+                            <span class="owner-name">Swag</span>
+                        </div>
+                        <div class="current-rent">
+                            <span>Current Rent</span>
+                            <strong>$130</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-table">
+                        <div class="stat-row base-rent-row">
+                            <span>Base Rent</span>
+                            <strong>$26</strong>
+                        </div>
+                        <div class="stat-row header-row">
+                            <span></span>
+                            <span>Upgrade Price</span>
+                            <span>New Rent</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>1x ⌂</span>
+                            <span>$200</span>
+                            <span>$130</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>2x ⌂</span>
+                            <span>$200</span>
+                            <span>$390</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>3x ⌂</span>
+                            <span>$200</span>
+                            <span>$900</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>4x ⌂</span>
+                            <span>$200</span>
+                            <span>$1100</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Hotel</span>
+                            <span>$200</span>
+                            <span>$1275</span>
+                        </div>
+                    </div>
+                    <button class="btn-pay modal-action-btn">Pay Bank $200<br><small>Upgrade</small></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Info Modal -->
+        <div id="transaction-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header gray-header">
+                    <button class="close-btn black-text">⬅</button>
+                    <div class="avatar-badge swag-bg small-avatar header-avatar">😎</div>
+                </div>
+                <div class="modal-body transaction-body">
+                    <div class="transfer-visual">
+                        <div class="transfer-party">
+                            <div class="avatar-badge swag-bg large-avatar">😎</div>
+                            <span class="party-name">Swag</span>
+                        </div>
+                        <span class="arrow-right">➔</span>
+                        <div class="transfer-party">
+                            <div class="avatar-badge giggles-bg large-avatar">😂</div>
+                            <span class="party-name">Giggles</span>
+                        </div>
+                    </div>
+                    <div class="transaction-details">
+                        <h1 class="transfer-amount">$2</h1>
+                        <span class="transfer-desc-label">Transaction Description</span>
+                        <h3 class="transfer-desc">Rent:<br>Mediterranean Avenue</h3>
+                    </div>
+                    <button class="btn-pay modal-action-btn">Pay</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Action Modal -->
+        <div id="history-action-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header gray-header">
+                    <button class="close-btn black-text">⬅</button>
+                    <h2 class="modal-title">Transaction<br>Details</h2>
+                </div>
+                <div class="modal-body transaction-body">
+                    <div class="transfer-visual">
+                        <div class="transfer-party">
+                            <div class="avatar-badge swag-bg large-avatar">😎</div>
+                            <span class="party-name">Swag</span>
+                        </div>
+                        <span class="arrow-right">➔</span>
+                        <div class="transfer-party">
+                            <div class="avatar-badge giggles-bg large-avatar">😂</div>
+                            <span class="party-name">Giggles</span>
+                        </div>
+                    </div>
+                    <div class="transaction-details">
+                        <h1 class="transfer-amount">$130</h1>
+                        <span class="transfer-desc-label">Original Description</span>
+                        <h3 class="transfer-desc">Rent:<br>North Carolina Avenue</h3>
+                        <span class="transfer-timestamp" style="font-size: 10px; color: #999; margin-top: 5px;">2 minutes ago</span>
+                    </div>
+                    <div class="history-actions" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                        <button class="btn-request modal-action-btn">Request Refund</button>
+                        <button class="btn-refund modal-action-btn">Return Funds</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incoming Request Modal -->
+        <div id="incoming-request-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header orange-header">
+                    <h2 class="modal-title">Refund Request</h2>
+                </div>
+                <div class="modal-body transaction-body">
+                    <div class="transfer-visual">
+                        <div class="transfer-party">
+                            <div class="avatar-badge swag-bg large-avatar">😎</div>
+                            <span class="party-name">Swag</span>
+                        </div>
+                    </div>
+                    <div class="transaction-details">
+                        <h1 class="transfer-amount">$130</h1>
+                        <span class="transfer-desc-label">Swag is requesting a refund for:</span>
+                        <h3 class="transfer-desc">Rent:<br>North Carolina Avenue</h3>
+                    </div>
+                    <div class="action-row" style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-refund modal-action-btn" style="margin-top: 0;">Decline</button>
+                        <button class="btn-pay modal-action-btn" style="margin-top: 0;">Accept</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+</body>
+</html>
