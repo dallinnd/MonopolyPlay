@@ -371,4 +371,63 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // --- Dynamic Property Modal Filler ---
+    function populatePropertyModal(propertyId) {
+        if (!propertyId || !PROPERTY_DATA[propertyId]) return;
+        
+        const prop = PROPERTY_DATA[propertyId];
+        const modal = document.getElementById('property-modal');
+        
+        // 1. Update Header Color
+        const header = modal.querySelector('.modal-header');
+        // Reset classes to base, then add the property's specific color class
+        header.className = `modal-header ${prop.color}`; 
+        
+        // 2. Update Title (Splits the name onto two lines for layout)
+        const title = modal.querySelector('.modal-title');
+        // Replaces the first space with a line break (e.g. "North Carolina" -> "North<br>Carolina")
+        title.innerHTML = prop.name.replace(' ', '<br>'); 
+        
+        // 3. Update Rent & Upgrade Stats Table
+        const rows = modal.querySelectorAll('.stat-row');
+        
+        // Base Rent
+        rows[0].querySelector('strong').textContent = `$${prop.baseRent}`;
+        
+        // Multiplier Rents (1x through Hotel)
+        for (let i = 2; i <= 6; i++) {
+            // Update Upgrade Cost column
+            rows[i].querySelectorAll('span')[1].textContent = `$${prop.upgradeCost}`;
+            // Update New Rent column (index 1-5 in your upgradeRents array)
+            rows[i].querySelectorAll('span')[2].textContent = `$${prop.upgradeRents[i-1]}`;
+        }
+        
+        // 4. Update the Pay Bank Button
+        const payBtn = modal.querySelector('.btn-pay');
+        payBtn.innerHTML = `Pay Bank $${prop.upgradeCost}<br><small>Upgrade</small>`;
+    }
+
+    // --- Property Card Clicks (Handles the Avatar + Property combo) ---
+    const propertyElements = document.querySelectorAll('.property-card, .market-item');
+    propertyElements.forEach(element => {
+        element.addEventListener('click', (e) => {
+            const selectedAvatar = document.querySelector('.avatar-item.selected');
+            const selectedBank = document.querySelector('.bank-btn.selected');
+            
+            if (selectedAvatar || selectedBank) {
+                // COMBO TRIGGERED: Deselect and open transaction modal
+                if (selectedAvatar) selectedAvatar.classList.remove('selected');
+                if (selectedBank) selectedBank.classList.remove('selected');
+                
+                transactionModal.classList.remove('hidden');
+            } else {
+                // STANDARD CLICK: Get the ID, fill the modal, then show it
+                const propertyId = element.getAttribute('data-property-id');
+                populatePropertyModal(propertyId);
+                
+                propertyModal.classList.remove('hidden');
+            }
+        });
+    });
 });
