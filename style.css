@@ -484,9 +484,9 @@ body {
     to { transform: scale(1); opacity: 1; }
 }
 
-/* Modal Headers */
+/* Update this class to add side padding */
 .modal-header {
-    padding: 15px;
+    padding: 15px 50px; /* 50px side padding prevents text from hiding under absolute buttons */
     color: white;
     display: flex;
     align-items: center;
@@ -495,10 +495,17 @@ body {
     min-height: 70px;
 }
 
+/* Update this to remove the space-between that was conflicting */
 .gray-header {
     background-color: #d9d9d9;
     color: black;
-    justify-content: space-between;
+    justify-content: center; 
+}
+
+/* Add this new class to position the avatar in the Transaction modal perfectly */
+.header-avatar {
+    position: absolute;
+    right: 15px;
 }
 
 .orange-header {
