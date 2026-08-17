@@ -9,182 +9,28 @@ const GAME_CONSTANTS = {
 
 // Complete standard property values and upgrade multipliers
 const PROPERTY_DATA = {
-    "mediterranean_avenue": {
-        name: "Mediterranean Avenue",
-        color: "brown",
-        purchasePrice: 60,
-        upgradeCost: 50,
-        baseRent: 2,
-        upgradeRents: [2, 10, 30, 90, 160, 250]
-    },
-    "baltic_avenue": {
-        name: "Baltic Avenue",
-        color: "brown",
-        purchasePrice: 60,
-        upgradeCost: 50,
-        baseRent: 4,
-        upgradeRents: [4, 20, 60, 180, 320, 450]
-    },
-    "oriental_avenue": {
-        name: "Oriental Avenue",
-        color: "light-blue",
-        purchasePrice: 100,
-        upgradeCost: 50,
-        baseRent: 6,
-        upgradeRents: [6, 30, 90, 270, 400, 550]
-    },
-    "vermont_avenue": {
-        name: "Vermont Avenue",
-        color: "light-blue",
-        purchasePrice: 100,
-        upgradeCost: 50,
-        baseRent: 6,
-        upgradeRents: [6, 30, 90, 270, 400, 550]
-    },
-    "connecticut_avenue": {
-        name: "Connecticut Avenue",
-        color: "light-blue",
-        purchasePrice: 120,
-        upgradeCost: 50,
-        baseRent: 8,
-        upgradeRents: [8, 40, 100, 300, 450, 600]
-    },
-    "st_charles_place": {
-        name: "St. Charles Place",
-        color: "pink",
-        purchasePrice: 140,
-        upgradeCost: 100,
-        baseRent: 10,
-        upgradeRents: [10, 50, 150, 450, 625, 750]
-    },
-    "states_avenue": {
-        name: "States Avenue",
-        color: "pink",
-        purchasePrice: 140,
-        upgradeCost: 100,
-        baseRent: 10,
-        upgradeRents: [10, 50, 150, 450, 625, 750]
-    },
-    "virginia_avenue": {
-        name: "Virginia Avenue",
-        color: "pink",
-        purchasePrice: 160,
-        upgradeCost: 100,
-        baseRent: 12,
-        upgradeRents: [12, 60, 180, 500, 700, 900]
-    },
-    "st_james_place": {
-        name: "St. James Place",
-        color: "orange",
-        purchasePrice: 180,
-        upgradeCost: 100,
-        baseRent: 14,
-        upgradeRents: [14, 70, 200, 550, 750, 950]
-    },
-    "tennessee_avenue": {
-        name: "Tennessee Avenue",
-        color: "orange",
-        purchasePrice: 180,
-        upgradeCost: 100,
-        baseRent: 14,
-        upgradeRents: [14, 70, 200, 550, 750, 950]
-    },
-    "new_york_avenue": {
-        name: "New York Avenue",
-        color: "orange",
-        purchasePrice: 200,
-        upgradeCost: 100,
-        baseRent: 16,
-        upgradeRents: [16, 80, 220, 600, 800, 1000]
-    },
-    "kentucky_avenue": {
-        name: "Kentucky Avenue",
-        color: "red",
-        purchasePrice: 220,
-        upgradeCost: 150,
-        baseRent: 18,
-        upgradeRents: [18, 90, 250, 700, 875, 1050]
-    },
-    "indiana_avenue": {
-        name: "Indiana Avenue",
-        color: "red",
-        purchasePrice: 220,
-        upgradeCost: 150,
-        baseRent: 18,
-        upgradeRents: [18, 90, 250, 700, 875, 1050]
-    },
-    "illinois_avenue": {
-        name: "Illinois Avenue",
-        color: "red",
-        purchasePrice: 240,
-        upgradeCost: 150,
-        baseRent: 20,
-        upgradeRents: [20, 100, 300, 750, 925, 1100]
-    },
-    "atlantic_avenue": {
-        name: "Atlantic Avenue",
-        color: "yellow",
-        purchasePrice: 260,
-        upgradeCost: 150,
-        baseRent: 22,
-        upgradeRents: [22, 110, 330, 800, 975, 1150]
-    },
-    "ventnor_avenue": {
-        name: "Ventnor Avenue",
-        color: "yellow",
-        purchasePrice: 260,
-        upgradeCost: 150,
-        baseRent: 22,
-        upgradeRents: [22, 110, 330, 800, 975, 1150]
-    },
-    "marvin_gardens": {
-        name: "Marvin Gardens",
-        color: "yellow",
-        purchasePrice: 280,
-        upgradeCost: 150,
-        baseRent: 24,
-        upgradeRents: [24, 120, 360, 850, 1025, 1200]
-    },
-    "pacific_avenue": {
-        name: "Pacific Avenue",
-        color: "green",
-        purchasePrice: 300,
-        upgradeCost: 200,
-        baseRent: 26,
-        upgradeRents: [26, 130, 390, 900, 1100, 1275]
-    },
-    "north_carolina_avenue": {
-        name: "North Carolina Avenue",
-        color: "green",
-        purchasePrice: 300,
-        upgradeCost: 200,
-        baseRent: 26,
-        upgradeRents: [26, 130, 390, 900, 1100, 1275]
-    },
-    "pennsylvania_avenue": {
-        name: "Pennsylvania Avenue",
-        color: "green",
-        purchasePrice: 320,
-        upgradeCost: 200,
-        baseRent: 28,
-        upgradeRents: [28, 150, 450, 1000, 1200, 1400]
-    },
-    "park_place": {
-        name: "Park Place",
-        color: "dark-blue",
-        purchasePrice: 350,
-        upgradeCost: 200,
-        baseRent: 35,
-        upgradeRents: [35, 175, 500, 1100, 1300, 1500]
-    },
-    "boardwalk": {
-        name: "Boardwalk",
-        color: "dark-blue",
-        purchasePrice: 400,
-        upgradeCost: 200,
-        baseRent: 50,
-        upgradeRents: [50, 200, 600, 1400, 1700, 2000]
-    }
+    "mediterranean_avenue": { name: "Mediterranean Avenue", color: "brown", purchasePrice: 60, upgradeCost: 50, baseRent: 2, upgradeRents: [2, 10, 30, 90, 160, 250] },
+    "baltic_avenue": { name: "Baltic Avenue", color: "brown", purchasePrice: 60, upgradeCost: 50, baseRent: 4, upgradeRents: [4, 20, 60, 180, 320, 450] },
+    "oriental_avenue": { name: "Oriental Avenue", color: "light-blue", purchasePrice: 100, upgradeCost: 50, baseRent: 6, upgradeRents: [6, 30, 90, 270, 400, 550] },
+    "vermont_avenue": { name: "Vermont Avenue", color: "light-blue", purchasePrice: 100, upgradeCost: 50, baseRent: 6, upgradeRents: [6, 30, 90, 270, 400, 550] },
+    "connecticut_avenue": { name: "Connecticut Avenue", color: "light-blue", purchasePrice: 120, upgradeCost: 50, baseRent: 8, upgradeRents: [8, 40, 100, 300, 450, 600] },
+    "st_charles_place": { name: "St. Charles Place", color: "pink", purchasePrice: 140, upgradeCost: 100, baseRent: 10, upgradeRents: [10, 50, 150, 450, 625, 750] },
+    "states_avenue": { name: "States Avenue", color: "pink", purchasePrice: 140, upgradeCost: 100, baseRent: 10, upgradeRents: [10, 50, 150, 450, 625, 750] },
+    "virginia_avenue": { name: "Virginia Avenue", color: "pink", purchasePrice: 160, upgradeCost: 100, baseRent: 12, upgradeRents: [12, 60, 180, 500, 700, 900] },
+    "st_james_place": { name: "St. James Place", color: "orange", purchasePrice: 180, upgradeCost: 100, baseRent: 14, upgradeRents: [14, 70, 200, 550, 750, 950] },
+    "tennessee_avenue": { name: "Tennessee Avenue", color: "orange", purchasePrice: 180, upgradeCost: 100, baseRent: 14, upgradeRents: [14, 70, 200, 550, 750, 950] },
+    "new_york_avenue": { name: "New York Avenue", color: "orange", purchasePrice: 200, upgradeCost: 100, baseRent: 16, upgradeRents: [16, 80, 220, 600, 800, 1000] },
+    "kentucky_avenue": { name: "Kentucky Avenue", color: "red", purchasePrice: 220, upgradeCost: 150, baseRent: 18, upgradeRents: [18, 90, 250, 700, 875, 1050] },
+    "indiana_avenue": { name: "Indiana Avenue", color: "red", purchasePrice: 220, upgradeCost: 150, baseRent: 18, upgradeRents: [18, 90, 250, 700, 875, 1050] },
+    "illinois_avenue": { name: "Illinois Avenue", color: "red", purchasePrice: 240, upgradeCost: 150, baseRent: 20, upgradeRents: [20, 100, 300, 750, 925, 1100] },
+    "atlantic_avenue": { name: "Atlantic Avenue", color: "yellow", purchasePrice: 260, upgradeCost: 150, baseRent: 22, upgradeRents: [22, 110, 330, 800, 975, 1150] },
+    "ventnor_avenue": { name: "Ventnor Avenue", color: "yellow", purchasePrice: 260, upgradeCost: 150, baseRent: 22, upgradeRents: [22, 110, 330, 800, 975, 1150] },
+    "marvin_gardens": { name: "Marvin Gardens", color: "yellow", purchasePrice: 280, upgradeCost: 150, baseRent: 24, upgradeRents: [24, 120, 360, 850, 1025, 1200] },
+    "pacific_avenue": { name: "Pacific Avenue", color: "green", purchasePrice: 300, upgradeCost: 200, baseRent: 26, upgradeRents: [26, 130, 390, 900, 1100, 1275] },
+    "north_carolina_avenue": { name: "North Carolina Avenue", color: "green", purchasePrice: 300, upgradeCost: 200, baseRent: 26, upgradeRents: [26, 130, 390, 900, 1100, 1275] },
+    "pennsylvania_avenue": { name: "Pennsylvania Avenue", color: "green", purchasePrice: 320, upgradeCost: 200, baseRent: 28, upgradeRents: [28, 150, 450, 1000, 1200, 1400] },
+    "park_place": { name: "Park Place", color: "dark-blue", purchasePrice: 350, upgradeCost: 200, baseRent: 35, upgradeRents: [35, 175, 500, 1100, 1300, 1500] },
+    "boardwalk": { name: "Boardwalk", color: "dark-blue", purchasePrice: 400, upgradeCost: 200, baseRent: 50, upgradeRents: [50, 200, 600, 1400, 1700, 2000] }
 };
 
 // ==========================================
@@ -202,12 +48,12 @@ import {
 
 // TODO: Replace with your actual Firebase config object
 const firebaseConfig = {
-  apiKey: "AIzaSyD8I7i_K7aQuaQZFr19Zx6yGw1ukpnNN8k",
-    authDomain: "monopoly-sync-712c8.firebaseapp.com",
-    projectId: "monopoly-sync-712c8",
-    storageBucket: "monopoly-sync-712c8.firebasestorage.app",
-    messagingSenderId: "418791061260",
-    appId: "1:418791061260:web:b2f4a114b95afdfa34bb29"
+  apiKey: "AIzaSyYourApiKeyHere...",
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef123456"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -281,8 +127,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 2. MODAL TOGGLING & COMBO LOGIC ---
+    // --- 2. DYNAMIC PROPERTY MODAL INJECTION ---
     const propertyModal = document.getElementById('property-modal');
+    
+    function populatePropertyModal(propertyId) {
+        if (!propertyId || !PROPERTY_DATA[propertyId]) return;
+        
+        const prop = PROPERTY_DATA[propertyId];
+        
+        // Update Header Color
+        const header = propertyModal.querySelector('.modal-header');
+        header.className = `modal-header ${prop.color}`; 
+        
+        // Update Title (Splits on first space to fit in the card)
+        const title = propertyModal.querySelector('.modal-title');
+        title.innerHTML = prop.name.replace(' ', '<br>'); 
+        
+        // Update Rent & Upgrade Stats Table
+        const rows = propertyModal.querySelectorAll('.stat-row');
+        
+        // Base Rent
+        rows[0].querySelector('strong').textContent = `$${prop.baseRent}`;
+        
+        // Multiplier Rents (1x through Hotel)
+        for (let i = 2; i <= 6; i++) {
+            rows[i].querySelectorAll('span')[1].textContent = `$${prop.upgradeCost}`;
+            rows[i].querySelectorAll('span')[2].textContent = `$${prop.upgradeRents[i-1]}`;
+        }
+        
+        // Update the Pay Bank Button
+        const payBtn = propertyModal.querySelector('.btn-pay');
+        payBtn.innerHTML = `Pay Bank $${prop.upgradeCost}<br><small>Upgrade</small>`;
+    }
+
+    // --- 3. MODAL TOGGLING & COMBO LOGIC ---
     const historyModal = document.getElementById('history-action-modal');
     const transactionModal = document.getElementById('transaction-modal');
 
@@ -293,11 +171,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedBank = document.querySelector('.bank-btn.selected');
             
             if (selectedAvatar || selectedBank) {
+                // Combo: Avatar + Property (Goes to Payment)
                 if (selectedAvatar) selectedAvatar.classList.remove('selected');
                 if (selectedBank) selectedBank.classList.remove('selected');
                 
                 transactionModal.classList.remove('hidden');
             } else {
+                // Standard: Inject data and open Info
+                const propertyId = element.getAttribute('data-property-id');
+                populatePropertyModal(propertyId);
+                
                 propertyModal.classList.remove('hidden');
             }
         });
@@ -310,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 3. CLOSING MODALS ---
+    // --- 4. CLOSING MODALS ---
     const closeBtns = document.querySelectorAll('.close-btn');
     closeBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -330,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 4. AVATAR & BANK SELECTION LOGIC ---
+    // --- 5. AVATAR & BANK SELECTION LOGIC ---
     const avatarItems = document.querySelectorAll('.avatar-item');
     const bankBtn = document.querySelector('.bank-btn');
 
@@ -359,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. ACTION BUTTON RESOLUTIONS ---
+    // --- 6. ACTION BUTTON RESOLUTIONS ---
     const actionBtns = document.querySelectorAll('.modal-action-btn, .request-property-btn');
     actionBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -368,65 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.classList.add('hidden');
             } else if (btn.classList.contains('request-property-btn')) {
                 alert("This will open the Bank's unowned property list!");
-            }
-        });
-    });
-
-    // --- Dynamic Property Modal Filler ---
-    function populatePropertyModal(propertyId) {
-        if (!propertyId || !PROPERTY_DATA[propertyId]) return;
-        
-        const prop = PROPERTY_DATA[propertyId];
-        const modal = document.getElementById('property-modal');
-        
-        // 1. Update Header Color
-        const header = modal.querySelector('.modal-header');
-        // Reset classes to base, then add the property's specific color class
-        header.className = `modal-header ${prop.color}`; 
-        
-        // 2. Update Title (Splits the name onto two lines for layout)
-        const title = modal.querySelector('.modal-title');
-        // Replaces the first space with a line break (e.g. "North Carolina" -> "North<br>Carolina")
-        title.innerHTML = prop.name.replace(' ', '<br>'); 
-        
-        // 3. Update Rent & Upgrade Stats Table
-        const rows = modal.querySelectorAll('.stat-row');
-        
-        // Base Rent
-        rows[0].querySelector('strong').textContent = `$${prop.baseRent}`;
-        
-        // Multiplier Rents (1x through Hotel)
-        for (let i = 2; i <= 6; i++) {
-            // Update Upgrade Cost column
-            rows[i].querySelectorAll('span')[1].textContent = `$${prop.upgradeCost}`;
-            // Update New Rent column (index 1-5 in your upgradeRents array)
-            rows[i].querySelectorAll('span')[2].textContent = `$${prop.upgradeRents[i-1]}`;
-        }
-        
-        // 4. Update the Pay Bank Button
-        const payBtn = modal.querySelector('.btn-pay');
-        payBtn.innerHTML = `Pay Bank $${prop.upgradeCost}<br><small>Upgrade</small>`;
-    }
-
-    // --- Property Card Clicks (Handles the Avatar + Property combo) ---
-    const propertyElements = document.querySelectorAll('.property-card, .market-item');
-    propertyElements.forEach(element => {
-        element.addEventListener('click', (e) => {
-            const selectedAvatar = document.querySelector('.avatar-item.selected');
-            const selectedBank = document.querySelector('.bank-btn.selected');
-            
-            if (selectedAvatar || selectedBank) {
-                // COMBO TRIGGERED: Deselect and open transaction modal
-                if (selectedAvatar) selectedAvatar.classList.remove('selected');
-                if (selectedBank) selectedBank.classList.remove('selected');
-                
-                transactionModal.classList.remove('hidden');
-            } else {
-                // STANDARD CLICK: Get the ID, fill the modal, then show it
-                const propertyId = element.getAttribute('data-property-id');
-                populatePropertyModal(propertyId);
-                
-                propertyModal.classList.remove('hidden');
             }
         });
     });
