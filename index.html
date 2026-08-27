@@ -7,7 +7,58 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="app-container" style="justify-content: center; align-items: center; padding: 40px 20px;">
+        
+        <h1 style="font-size: 32px; margin-bottom: 5px; color: var(--text-main);">Monopoly Sync</h1>
+        <p style="color: #666; margin-bottom: 30px;">Real-time banking & property manager</p>
+
+        <!-- Avatar Selection for Joining -->
+        <h3 style="margin-bottom: 15px; font-size: 16px;">1. Choose your Avatar</h3>
+        <section class="avatar-ribbon" id="landing-avatars" style="width: 100%; max-width: 350px; flex-wrap: wrap; justify-content: center; padding: 20px; margin-bottom: 30px; background: white; border-radius: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div class="avatar-item" data-avatar-id="Swag">
+                <div class="avatar-badge swag-bg">😎</div>
+                <span>Swag</span>
+            </div>
+            <div class="avatar-item" data-avatar-id="Giggles">
+                <div class="avatar-badge giggles-bg">😂</div>
+                <span>Giggles</span>
+            </div>
+            <div class="avatar-item" data-avatar-id="Hearts">
+                <div class="avatar-badge hearts-bg">😍</div>
+                <span>Hearts</span>
+            </div>
+            <div class="avatar-item" data-avatar-id="Blush">
+                <div class="avatar-badge blush-bg">😊</div>
+                <span>Blush</span>
+            </div>
+            <div class="avatar-item" data-avatar-id="Party">
+                <div class="avatar-badge party-bg">🥳</div>
+                <span>Party</span>
+            </div>
+            <div class="avatar-item" data-avatar-id="Freeze">
+                <div class="avatar-badge freeze-bg">🥶</div>
+                <span>Freeze</span>
+            </div>
+        </section>
+
+        <!-- Room Actions -->
+        <h3 style="margin-bottom: 15px; font-size: 16px;">2. Enter a Room</h3>
+        <div class="landing-actions" style="width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px;">
+            <button id="btn-create-game" class="btn-pay modal-action-btn" style="padding: 15px;">Create New Game</button>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <input type="text" id="join-code-input" placeholder="4-Digit Code" maxlength="4" style="flex: 1; padding: 15px; border-radius: 20px; border: 2px solid #ccc; font-size: 16px; font-weight: bold; text-align: center; text-transform: uppercase;">
+                <button id="btn-join-game" class="btn-request modal-action-btn" style="margin-top: 0; width: auto; padding: 15px 25px;">Join</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAIN APP DASHBOARD (Hidden by default) -->
+    <div id="main-app" class="app-container hidden">
+        
         <!-- Top Player Header -->
         <header class="player-header">
             <div class="player-info">
