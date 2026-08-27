@@ -8,43 +8,21 @@
 </head>
 <body>
 
-    <!-- LANDING PAGE -->
+    <!-- LANDING PAGE (Initial Screen) -->
     <div id="landing-page" class="app-container" style="justify-content: center; align-items: center; padding: 40px 20px;">
         
         <h1 style="font-size: 32px; margin-bottom: 5px; color: var(--text-main);">Monopoly Sync</h1>
         <p style="color: #666; margin-bottom: 30px;">Real-time banking & property manager</p>
 
-        <!-- Avatar Selection for Joining -->
-        <h3 style="margin-bottom: 15px; font-size: 16px;">1. Choose your Avatar</h3>
-        <section class="avatar-ribbon" id="landing-avatars" style="width: 100%; max-width: 350px; flex-wrap: wrap; justify-content: center; padding: 20px; margin-bottom: 30px; background: white; border-radius: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <div class="avatar-item" data-avatar-id="Swag">
-                <div class="avatar-badge swag-bg">😎</div>
-                <span>Swag</span>
+        <!-- Recent Games History -->
+        <div id="recent-games-container" style="width: 100%; max-width: 350px; margin-bottom: 25px; display: none;">
+            <h3 style="margin-bottom: 10px; font-size: 14px; color: #555;">Recent Games</h3>
+            <div id="recent-games-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Populated dynamically via JS -->
             </div>
-            <div class="avatar-item" data-avatar-id="Giggles">
-                <div class="avatar-badge giggles-bg">😂</div>
-                <span>Giggles</span>
-            </div>
-            <div class="avatar-item" data-avatar-id="Hearts">
-                <div class="avatar-badge hearts-bg">😍</div>
-                <span>Hearts</span>
-            </div>
-            <div class="avatar-item" data-avatar-id="Blush">
-                <div class="avatar-badge blush-bg">😊</div>
-                <span>Blush</span>
-            </div>
-            <div class="avatar-item" data-avatar-id="Party">
-                <div class="avatar-badge party-bg">🥳</div>
-                <span>Party</span>
-            </div>
-            <div class="avatar-item" data-avatar-id="Freeze">
-                <div class="avatar-badge freeze-bg">🥶</div>
-                <span>Freeze</span>
-            </div>
-        </section>
+        </div>
 
         <!-- Room Actions -->
-        <h3 style="margin-bottom: 15px; font-size: 16px;">2. Enter a Room</h3>
         <div class="landing-actions" style="width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px;">
             <button id="btn-create-game" class="btn-pay modal-action-btn" style="padding: 15px;">Create New Game</button>
             
@@ -56,13 +34,54 @@
 
     </div>
 
-    <!-- MAIN APP DASHBOARD (Hidden by default) -->
+    <!-- LOBBY WAITING ROOM (Avatar Selection & Locking) -->
+    <div id="lobby-page" class="app-container hidden" style="justify-content: center; align-items: center; padding: 40px 20px;">
+        <h1 style="font-size: 24px; margin-bottom: 5px;">Waiting Room</h1>
+        <p style="color: #666; margin-bottom: 20px;">Room Code: <strong id="lobby-room-code-display" style="font-size: 20px; color: black;">----</strong></p>
+
+        <h3 style="margin-bottom: 15px; font-size: 16px;">Choose Your Avatar</h3>
+        
+        <!-- Live-Syncing Avatar Grid -->
+        <div class="lobby-avatar-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; max-width: 350px; margin-bottom: 30px;">
+            <div class="lobby-avatar-card" data-avatar-id="Swag">
+                <div class="avatar-badge swag-bg large-avatar">😎</div>
+                <span class="lobby-name-tag">Swag</span>
+            </div>
+            <div class="lobby-avatar-card" data-avatar-id="Giggles">
+                <div class="avatar-badge giggles-bg large-avatar">😂</div>
+                <span class="lobby-name-tag">Giggles</span>
+            </div>
+            <div class="lobby-avatar-card" data-avatar-id="Hearts">
+                <div class="avatar-badge hearts-bg large-avatar">😍</div>
+                <span class="lobby-name-tag">Hearts</span>
+            </div>
+            <div class="lobby-avatar-card" data-avatar-id="Blush">
+                <div class="avatar-badge blush-bg large-avatar">😊</div>
+                <span class="lobby-name-tag">Blush</span>
+            </div>
+            <div class="lobby-avatar-card" data-avatar-id="Party">
+                <div class="avatar-badge party-bg large-avatar">🥳</div>
+                <span class="lobby-name-tag">Party</span>
+            </div>
+            <div class="lobby-avatar-card" data-avatar-id="Freeze">
+                <div class="avatar-badge freeze-bg large-avatar">🥶</div>
+                <span class="lobby-name-tag">Freeze</span>
+            </div>
+        </div>
+
+        <!-- Host Start Game Button (Visible only to Host) -->
+        <button id="btn-start-game" class="btn-pay modal-action-btn hidden" style="width: 100%; max-width: 350px; padding: 15px;">Start Game</button>
+        <p id="waiting-host-text" style="color: #666; font-size: 14px;">Waiting for host to start the game...</p>
+    </div>
+
+    <!-- MAIN APP DASHBOARD -->
     <div id="main-app" class="app-container hidden">
         
         <!-- Top Player Header -->
         <header class="player-header">
             <div class="player-info">
-                <div class="avatar-badge swag-bg" style="width: 60px;height: 60px; font-size: 45px;">😎</div>
+                <!-- Tapping this avatar opens the Profile Menu Modal -->
+                <div id="header-profile-trigger" class="avatar-badge swag-bg" style="width: 60px;height: 60px; font-size: 45px; cursor: pointer;" title="View Room Code & Options">😎</div>
                 <div class="player-details">
                     <h2 class="player-name">Swag</h2>
                 </div>
@@ -364,84 +383,6 @@
                             <div class="col-amount">$2</div>
                             <div class="col-details">Rent:<br>Mediterranean...</div>
                         </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Giggles</div>
-                            <div class="col-to">Swag</div>
-                            <div class="col-amount">$130</div>
-                            <div class="col-details">Rent:<br>North Carolina...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Giggles</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$---</div>
-                            <div class="col-details">Purchase:<br>Mediterranean...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Swag</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$100</div>
-                            <div class="col-details">Purchase:<br>Oriental Avenu...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Hearts</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$---</div>
-                            <div class="col-details">Rent:<br>Connecticut A...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Swag</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$---</div>
-                            <div class="col-details">Upgrade:<br>North Carolina...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Swag</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$300</div>
-                            <div class="col-details">Purchase:<br>North Carolina...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Hearts</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$---</div>
-                            <div class="col-details">Upgrade:<br>Connecticut A...</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Bank</div>
-                            <div class="col-to">Swag</div>
-                            <div class="col-amount">$200</div>
-                            <div class="col-details">Pass Go:<br>Salary Collection</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Hearts</div>
-                            <div class="col-to">Swag</div>
-                            <div class="col-amount">$35</div>
-                            <div class="col-details">Rent:<br>Park Place</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Giggles</div>
-                            <div class="col-to">Hearts</div>
-                            <div class="col-amount">$24</div>
-                            <div class="col-details">Rent:<br>Marvin Gardens</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Swag</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$150</div>
-                            <div class="col-details">Upgrade:<br>Virginia Avenue</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Swag</div>
-                            <div class="col-to">Bank</div>
-                            <div class="col-amount">$75</div>
-                            <div class="col-details">Luxury Tax:<br>Payment</div>
-                        </div>
-                        <div class="transaction-item">
-                            <div class="col-from">Bank</div>
-                            <div class="col-to">Giggles</div>
-                            <div class="col-amount">$200</div>
-                            <div class="col-details">Pass Go:<br>Salary Collection</div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -449,6 +390,23 @@
 
         <!-- Modals (Popups) -->
         
+        <!-- Profile / Room Menu Modal -->
+        <div id="profile-menu-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header gray-header">
+                    <button class="close-btn black-text">⬅</button>
+                    <h2 class="modal-title">Game Options</h2>
+                </div>
+                <div class="modal-body transaction-body" style="gap: 15px;">
+                    <div>
+                        <span class="transfer-desc-label">Active Room Code</span>
+                        <h1 id="modal-room-code-text" style="font-size: 32px; letter-spacing: 2px; margin-top: 5px;">----</h1>
+                    </div>
+                    <button id="btn-return-landing" class="btn-refund modal-action-btn" style="margin-top: 10px;">Return to Landing Page</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Property Info Modal -->
         <div id="property-modal" class="modal-overlay hidden">
             <div class="modal-card">
