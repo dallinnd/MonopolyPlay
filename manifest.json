@@ -1,0 +1,20 @@
+{
+  "name": "Monopoly Sync",
+  "short_name": "MonoSync",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#d8ebd2",
+  "theme_color": "#007c41",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/007c41/FFFFFF?text=M",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/007c41/FFFFFF?text=M",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
