@@ -104,118 +104,174 @@ function initializeGameListeners(roomId) {
 }
 
 // ==========================================
-// LOBBY & LANDING PAGE LOGIC
+// LOBBY, WAITING ROOM & SESSION MANAGEMENT
 // ==========================================
 
-// Global variable to hold the user's selected avatar before they join a game
-let selectedStartingAvatar = null;
+let selectedAvatarId = null;
+let isHost = false;
+let activeGameCode = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    
     const landingPage = document.getElementById('landing-page');
+    const lobbyPage = document.getElementById('lobby-page');
     const mainApp = document.getElementById('main-app');
-    const landingAvatars = document.querySelectorAll('#landing-avatars .avatar-item');
+    
     const btnCreateGame = document.getElementById('btn-create-game');
     const btnJoinGame = document.getElementById('btn-join-game');
     const joinCodeInput = document.getElementById('join-code-input');
+    const lobbyCards = document.querySelectorAll('.lobby-avatar-card');
+    const btnStartGame = document.getElementById('btn-start-game');
+    const waitingHostText = document.getElementById('waiting-host-text');
+    const lobbyCodeDisplay = document.getElementById('lobby-room-code-display');
+    
+    // Header Profile Menu
+    const profileTrigger = document.getElementById('header-profile-trigger');
+    const profileModal = document.getElementById('profile-menu-modal');
+    const modalRoomCodeText = document.getElementById('modal-room-code-text');
+    const btnReturnLanding = document.getElementById('btn-return-landing');
 
-    // 1. Select Avatar on Landing Page
-    landingAvatars.forEach(item => {
-        item.addEventListener('click', () => {
-            landingAvatars.forEach(a => a.classList.remove('selected'));
-            item.classList.add('selected');
-            selectedStartingAvatar = item.getAttribute('data-avatar-id');
+    // Load Recent Games from LocalStorage
+    function loadRecentGames() {
+        const container = document.getElementById('recent-games-container');
+        const list = document.getElementById('recent-games-list');
+        const saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
+        
+        if (saved.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+        list.innerHTML = '';
+        
+        saved.forEach(code => {
+            const btn = document.createElement('button');
+            btn.textContent = `Room: ${code}`;
+            btn.className = 'btn-request modal-action-btn';
+            btn.style.margin = '0';
+            btn.style.padding = '10px';
+            btn.style.fontSize = '14px';
+            btn.addEventListener('click', () => {
+                joinCodeInput.value = code;
+            });
+            list.appendChild(btn);
+        });
+    }
+
+    function saveRecentGame(code) {
+        let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
+        if (!saved.includes(code)) {
+            saved.unshift(code); // Add to top
+            if (saved.length > 3) saved.pop(); // Keep max 3
+            localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
+        }
+    }
+
+    loadRecentGames();
+
+    // 1. Avatar selection in Lobby
+    lobbyCards.forEach(card => {
+        card.addEventListener('click', () => {
+            if (card.classList.contains('taken')) return;
+            
+            lobbyCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedAvatarId = card.getAttribute('data-avatar-id');
         });
     });
 
-    // Helper: Generate a random 4-character room code
+    // Code generator helper
     function generateRoomCode() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed lookalike I, 1, O, 0
-        let result = '';
-        for (let i = 0; i < 4; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let res = '';
+        for (let i = 0; i < 4; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+        return res;
     }
 
-    // Helper: The function that issues starting money
-    function issueStartingFunds(playerId, roomId) {
-        const startingAmount = GAME_CONSTANTS.startingBalance; // $1500
-        
-        // This simulates what will eventually be sent to Firebase
-        const newTransaction = {
-            from: "Bank",
-            to: playerId,
-            amount: startingAmount,
-            details: "Pass Go:<br>Starting Balance",
-            timestamp: new Date().toISOString()
-        };
-
-        // For now, push it to our local cache for testing
-        liveGameState.transactions.push(newTransaction);
-        console.log(`Issued starting funds: Bank sent $${startingAmount} to ${playerId}`);
-        
-        // TODO (Later): write to Firestore: 
-        // addDoc(collection(db, `games/${roomId}/transactions`), newTransaction);
-    }
-
-    // Helper: Transition from Landing Page to Main Dashboard
-    function enterGameUI(roomId, playerId) {
-        currentRoomId = roomId;
-        localPlayerId = playerId;
-        
-        // Update the header visually for the local player
-        document.querySelector('.player-name').textContent = playerId;
-        
-        // Switch screens
-        landingPage.classList.add('hidden');
-        mainApp.classList.remove('hidden');
-        
-        console.log(`Successfully entered room ${roomId} as ${playerId}`);
-    }
-
-    // 2. Create Game Click
+    // 2. Create Game (Host Action)
     btnCreateGame.addEventListener('click', () => {
-        if (!selectedStartingAvatar) {
-            alert("Please select an avatar first!");
-            return;
-        }
+        activeGameCode = generateRoomCode();
+        isHost = true;
         
-        const newRoomCode = generateRoomCode();
+        landingPage.classList.add('hidden');
+        lobbyPage.classList.remove('hidden');
         
-        // In the future: Here we will write the default empty board state to Firebase
+        lobbyCodeDisplay.textContent = activeGameCode;
+        btnStartGame.classList.remove('hidden'); // Host gets start button
+        waitingHostText.style.display = 'none';
         
-        issueStartingFunds(selectedStartingAvatar, newRoomCode);
-        enterGameUI(newRoomCode, selectedStartingAvatar);
-        
-        // Show the host their code so they can share it
-        alert(`Game Created! Your Join Code is: ${newRoomCode}`);
+        saveRecentGame(activeGameCode);
     });
 
-    // 3. Join Game Click
+    // 3. Join Game (Player Action)
     btnJoinGame.addEventListener('click', () => {
         const code = joinCodeInput.value.toUpperCase();
-        
-        if (!selectedStartingAvatar) {
-            alert("Please select an avatar first!");
-            return;
-        }
         if (code.length !== 4) {
             alert("Please enter a valid 4-digit code.");
             return;
         }
-        
-        // In the future: Here we will verify the code exists in Firebase
-        
-        issueStartingFunds(selectedStartingAvatar, code);
-        enterGameUI(code, selectedStartingAvatar);
+
+        activeGameCode = code;
+        isHost = false;
+
+        landingPage.classList.add('hidden');
+        lobbyPage.classList.remove('hidden');
+
+        lobbyCodeDisplay.textContent = activeGameCode;
+        btnStartGame.classList.add('hidden'); // Non-host hides start button
+        waitingHostText.style.display = 'block';
+
+        saveRecentGame(activeGameCode);
     });
 
-    // Force uppercase on input
+    // 4. Host Starts Game -> Triggers Transition to Main App & Payout
+    btnStartGame.addEventListener('click', () => {
+        if (!selectedAvatarId) {
+            alert("Please select your avatar before starting!");
+            return;
+        }
+
+        transitionToMainApp(selectedAvatarId, activeGameCode);
+    });
+
+    function transitionToMainApp(avatarId, roomId) {
+        lobbyPage.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+
+        // Update Header
+        document.querySelector('.player-name').textContent = avatarId;
+        
+        // Issue Starting Cash ($1500)
+        const startingTx = {
+            from: "Bank",
+            to: avatarId,
+            amount: GAME_CONSTANTS.startingBalance,
+            details: "Pass Go:<br>Starting Balance",
+            timestamp: new Date().toISOString()
+        };
+        liveGameState.transactions.push(startingTx);
+        console.log(`Initialized game in room ${roomId}. Issued $1500 to ${avatarId}`);
+    }
+
+    // 5. Header Profile Trigger Modal
+    profileTrigger.addEventListener('click', () => {
+        modalRoomCodeText.textContent = activeGameCode || "TEST";
+        profileModal.classList.remove('hidden');
+    });
+
+    // Return to Landing Page from Profile Menu
+    btnReturnLanding.addEventListener('click', () => {
+        profileModal.classList.add('hidden');
+        mainApp.classList.add('hidden');
+        lobbyPage.classList.add('hidden');
+        landingPage.classList.remove('hidden');
+        loadRecentGames();
+    });
+
+    // Force uppercase code entry
     joinCodeInput.addEventListener('input', (e) => {
         e.target.value = e.target.value.toUpperCase();
     });
-
 });
 
 // ==========================================
