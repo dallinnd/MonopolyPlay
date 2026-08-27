@@ -93,23 +93,23 @@
 
         <!-- Avatar Selection Ribbon -->
         <section class="avatar-ribbon">
-            <div class="avatar-item">
+            <div class="avatar-item" data-avatar-id="Giggles">
                 <div class="avatar-badge giggles-bg">😂</div>
                 <span>Giggles</span>
             </div>
-            <div class="avatar-item">
+            <div class="avatar-item" data-avatar-id="Hearts">
                 <div class="avatar-badge hearts-bg">😍</div>
                 <span>Hearts</span>
             </div>
-            <div class="avatar-item">
+            <div class="avatar-item" data-avatar-id="Blush">
                 <div class="avatar-badge blush-bg">😊</div>
                 <span>Blush</span>
             </div>
-            <div class="avatar-item">
+            <div class="avatar-item" data-avatar-id="Party">
                 <div class="avatar-badge party-bg">🥳</div>
                 <span>Party</span>
             </div>
-            <div class="avatar-item">
+            <div class="avatar-item" data-avatar-id="Freeze">
                 <div class="avatar-badge freeze-bg">🥶</div>
                 <span>Freeze</span>
             </div>
@@ -131,50 +131,8 @@
                 <button class="request-property-btn">
                     Request New<br>Property from Bank
                 </button>
-
-                <div class="property-grid">
-                    <div class="property-card" data-property-id="oriental_avenue">
-                        <div class="property-header light-blue">
-                            <h3>Oriental Avenue</h3>
-                        </div>
-                        <div class="property-body">
-                            <span class="rent-label">Rent</span>
-                            <h2 class="rent-price">$30</h2>
-                        </div>
-                        <div class="upgrade-status">
-                            <span class="house light-blue-text"></span>
-                            <span class="house-icon light-blue-text">⌂</span>
-                            <span class="arrow-icon">⬆</span>
-                        </div>
-                    </div>
-
-                    <div class="property-card" data-property-id="virginia_avenue">
-                        <div class="property-header pink">
-                            <h3>Virginia Avenue</h3>
-                        </div>
-                        <div class="property-body">
-                            <span class="rent-label">Rent</span>
-                            <h2 class="rent-price">$180</h2>
-                        </div>
-                        <div class="upgrade-status">
-                            <span class="house-icon pink-text">⌂⌂</span>
-                            <span class="arrow-icon">⬆</span>
-                        </div>
-                    </div>
-                    
-                    <div class="property-card" data-property-id="park_place">
-                        <div class="property-header dark-blue">
-                            <h3>Park Place</h3>
-                        </div>
-                        <div class="property-body">
-                            <span class="rent-label">Rent</span>
-                            <h2 class="rent-price">$35</h2>
-                        </div>
-                        <div class="upgrade-status">
-                            <span class="house-icon dark-blue-text">‎</span>
-                            <span class="arrow-icon">⬆</span>
-                        </div>
-                    </div>
+                <div class="property-grid" id="my-assets-grid">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </section>
 
@@ -184,185 +142,10 @@
                     <div class="market-header">
                         <div class="col-property">Property</div>
                         <div class="col-owner">Owner</div>
-                        <div class="col-rent">Rent</div>
+                        <div class="col-rent">Rent / Price</div>
                     </div>
-                    <div class="market-list">
-                        <div class="market-item" data-property-id="mediterranean_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar brown"></div>
-                                <span class="prop-name">Mediterranean<br>Avenue</span>
-                            </div>
-                            <div class="col-owner">Giggles</div>
-                            <div class="col-rent">$2</div>
-                        </div>
-                        <div class="market-item" data-property-id="baltic_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar brown"></div>
-                                <span class="prop-name">Baltic Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$4</div>
-                        </div>
-                        <div class="market-item" data-property-id="oriental_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar light-blue"></div>
-                                <span class="prop-name">Oriental Avenue</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$30</div>
-                        </div>
-                        <div class="market-item" data-property-id="vermont_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar light-blue"></div>
-                                <span class="prop-name">Vermont Avenue</span>
-                            </div>
-                            <div class="col-owner">Hearts</div>
-                            <div class="col-rent">$6</div>
-                        </div>
-                        <div class="market-item" data-property-id="connecticut_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar light-blue"></div>
-                                <span class="prop-name">Connecticut<br>Avenue</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$100</div>
-                        </div>
-                        <div class="market-item" data-property-id="st_charles_place">
-                            <div class="col-property">
-                                <div class="prop-color-bar pink"></div>
-                                <span class="prop-name">St. Charles<br>Place</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$10</div>
-                        </div>
-                        <div class="market-item" data-property-id="states_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar pink"></div>
-                                <span class="prop-name">States Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$10</div>
-                        </div>
-                        <div class="market-item" data-property-id="virginia_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar pink"></div>
-                                <span class="prop-name">Virginia Avenue</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$180</div>
-                        </div>
-                        <div class="market-item" data-property-id="st_james_place">
-                            <div class="col-property">
-                                <div class="prop-color-bar orange"></div>
-                                <span class="prop-name">St. James<br>Place</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$14</div>
-                        </div>
-                        <div class="market-item" data-property-id="tennessee_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar orange"></div>
-                                <span class="prop-name">Tennessee<br>Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$14</div>
-                        </div>
-                        <div class="market-item" data-property-id="new_york_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar orange"></div>
-                                <span class="prop-name">New York<br>Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$16</div>
-                        </div>
-                        <div class="market-item" data-property-id="kentucky_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar red"></div>
-                                <span class="prop-name">Kentucky<br>Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$18</div>
-                        </div>
-                        <div class="market-item" data-property-id="indiana_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar red"></div>
-                                <span class="prop-name">Indiana Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$18</div>
-                        </div>
-                        <div class="market-item" data-property-id="illinois_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar red"></div>
-                                <span class="prop-name">Illinois Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$20</div>
-                        </div>
-                        <div class="market-item" data-property-id="atlantic_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar yellow"></div>
-                                <span class="prop-name">Atlantic Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$22</div>
-                        </div>
-                        <div class="market-item" data-property-id="ventnor_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar yellow"></div>
-                                <span class="prop-name">Ventnor Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$22</div>
-                        </div>
-                        <div class="market-item" data-property-id="marvin_gardens">
-                            <div class="col-property">
-                                <div class="prop-color-bar yellow"></div>
-                                <span class="prop-name">Marvin Gardens</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$24</div>
-                        </div>
-                        <div class="market-item" data-property-id="pacific_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar green"></div>
-                                <span class="prop-name">Pacific Avenue</span>
-                            </div>
-                            <div class="col-owner"></div>
-                            <div class="col-rent">$26</div>
-                        </div>
-                        <div class="market-item" data-property-id="north_carolina_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar green"></div>
-                                <span class="prop-name">North Carolina<br>Avenue</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$130</div>
-                        </div>
-                        <div class="market-item" data-property-id="pennsylvania_avenue">
-                            <div class="col-property">
-                                <div class="prop-color-bar green"></div>
-                                <span class="prop-name">Pennsylvania<br>Avenue</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$28</div>
-                        </div>
-                        <div class="market-item" data-property-id="park_place">
-                            <div class="col-property">
-                                <div class="prop-color-bar dark-blue"></div>
-                                <span class="prop-name">Park Place</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$35</div>
-                        </div>
-                        <div class="market-item" data-property-id="boardwalk">
-                            <div class="col-property">
-                                <div class="prop-color-bar dark-blue"></div>
-                                <span class="prop-name">Boardwalk</span>
-                            </div>
-                            <div class="col-owner">Swag</div>
-                            <div class="col-rent">$200</div>
-                        </div>
+                    <div class="market-list" id="global-market-list">
+                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
             </section>
@@ -376,19 +159,28 @@
                         <div class="col-amount">Amount</div>
                         <div class="col-details">Details</div>
                     </div>
-                    <div class="transaction-list">
-                        <div class="transaction-item">
-                            <div class="col-from">Swag</div>
-                            <div class="col-to">Giggles</div>
-                            <div class="col-amount">$2</div>
-                            <div class="col-details">Rent:<br>Mediterranean...</div>
-                        </div>
+                    <div class="transaction-list" id="global-transaction-list">
+                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
             </section>
         </main>
 
         <!-- Modals (Popups) -->
+
+        <!-- Recent Game Action Modal -->
+        <div id="recent-game-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header gray-header">
+                    <button class="close-btn black-text">⬅</button>
+                    <h2 class="modal-title">Recent Game<br><span id="recent-modal-code" style="letter-spacing: 2px;">----</span></h2>
+                </div>
+                <div class="modal-body transaction-body">
+                    <button id="btn-recent-play" class="btn-pay modal-action-btn">Play Game</button>
+                    <button id="btn-recent-delete" class="btn-refund modal-action-btn" style="margin-top: 15px;">Delete from History</button>
+                </div>
+            </div>
+        </div>
         
         <!-- Profile / Room Menu Modal -->
         <div id="profile-menu-modal" class="modal-overlay hidden">
@@ -437,29 +229,19 @@
                             <span>New Rent</span>
                         </div>
                         <div class="stat-row">
-                            <span>1x ⌂</span>
-                            <span>$200</span>
-                            <span>$130</span>
+                            <span>1x ⌂</span><span>$200</span><span>$130</span>
                         </div>
                         <div class="stat-row">
-                            <span>2x ⌂</span>
-                            <span>$200</span>
-                            <span>$390</span>
+                            <span>2x ⌂</span><span>$200</span><span>$390</span>
                         </div>
                         <div class="stat-row">
-                            <span>3x ⌂</span>
-                            <span>$200</span>
-                            <span>$900</span>
+                            <span>3x ⌂</span><span>$200</span><span>$900</span>
                         </div>
                         <div class="stat-row">
-                            <span>4x ⌂</span>
-                            <span>$200</span>
-                            <span>$1100</span>
+                            <span>4x ⌂</span><span>$200</span><span>$1100</span>
                         </div>
                         <div class="stat-row">
-                            <span>Hotel</span>
-                            <span>$200</span>
-                            <span>$1275</span>
+                            <span>Hotel</span><span>$200</span><span>$1275</span>
                         </div>
                     </div>
                     <button class="btn-pay modal-action-btn">Pay Bank $200<br><small>Upgrade</small></button>
@@ -467,7 +249,7 @@
             </div>
         </div>
 
-        <!-- Transaction Info Modal -->
+        <!-- Transaction Info (Payment) Modal -->
         <div id="transaction-modal" class="modal-overlay hidden">
             <div class="modal-card">
                 <div class="modal-header gray-header">
