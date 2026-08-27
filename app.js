@@ -256,10 +256,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Recent Game Modal Actions
+// Recent Game Modal Actions
     document.getElementById('btn-recent-play').addEventListener('click', () => {
-        document.getElementById('join-code-input').value = tempRecentCode;
         document.getElementById('recent-game-modal').classList.add('hidden');
+        
+        // Directly execute the Join Game logic when "Play" is clicked
+        currentRoomId = tempRecentCode;
+        isHost = false;
+
+        landingPage.classList.add('hidden');
+        lobbyPage.classList.remove('hidden');
+        document.getElementById('lobby-room-code-display').textContent = currentRoomId;
+        document.getElementById('btn-start-game').classList.add('hidden');
+        document.getElementById('waiting-host-text').style.display = 'block';
+
+        saveRecentGame(currentRoomId);
+        
+        try {
+            listenToRoomState(currentRoomId);
+        } catch (e) {
+            console.warn("Firebase not connected yet.");
+        }
     });
 
     document.getElementById('btn-recent-delete').addEventListener('click', () => {
@@ -296,8 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
         currentRoomId = generateRoomCode();
         isHost = true;
         
-        // Write initial room state to Firebase
-        await setDoc(doc(db, "games", currentRoomId), { status: 'waiting', host: 'LocalHostId' });
+        try {
+            // Write initial room state to Firebase
+            await setDoc(doc(db, "games", currentRoomId), { status: 'waiting', host: 'LocalHostId' });
+            listenToRoomState(currentRoomId); 
+        } catch (error) {
+            console.warn("Firebase not fully configured. Bypassing database sync for local testing.");
+        }
         
         landingPage.classList.add('hidden');
         lobbyPage.classList.remove('hidden');
@@ -306,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('waiting-host-text').style.display = 'none';
         
         saveRecentGame(currentRoomId);
-        listenToRoomState(currentRoomId); 
     });
 
     document.getElementById('btn-join-game').addEventListener('click', () => {
@@ -323,7 +344,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('waiting-host-text').style.display = 'block';
 
         saveRecentGame(currentRoomId);
-        listenToRoomState(currentRoomId);
+        
+        try {
+            listenToRoomState(currentRoomId);
+        } catch (e) {
+            console.warn("Firebase not connected yet.");
+        }
     });
 
     // Host Starts Game
@@ -332,7 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Please select your avatar before starting!");
             return;
         }
-        await updateDoc(doc(db, "games", currentRoomId), { status: 'active' });
+        
+        try {
+            // Tell Firebase to launch the game for everyone
+            await updateDoc(doc(db, "games", currentRoomId), { status: 'active' });
+        } catch (error) {
+            console.warn("Firebase not connected. Forcing local transition for Host.");
+            transitionToMainApp(); // Force the transition locally if Firebase fails
+        }
     });
 
     // Firebase Listener for Room Status
