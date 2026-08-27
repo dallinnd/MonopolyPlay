@@ -37,12 +37,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyYourApiKeyHere...",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+    apiKey: "AIzaSyD8I7i_K7aQuaQZFr19Zx6yGw1ukpnNN8k",
+    authDomain: "monopoly-sync-712c8.firebaseapp.com",
+    projectId: "monopoly-sync-712c8",
+    storageBucket: "monopoly-sync-712c8.firebasestorage.app",
+    messagingSenderId: "418791061260",
+    appId: "1:418791061260:web:b2f4a114b95afdfa34bb29"
 };
 
 let app, db;
