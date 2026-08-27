@@ -35,6 +35,10 @@
     font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
 }
 
+.hidden {
+    display: none !important;
+}
+
 body {
     background-color: #f0f0f0;
     display: flex;
