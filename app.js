@@ -1,13 +1,11 @@
 // ==========================================
-// GAME CONSTANTS & CONFIGURATION
+// 1. GAME CONSTANTS & CONFIGURATION
 // ==========================================
-
 const GAME_CONSTANTS = {
     passGoAmount: 200,
     startingBalance: 1500
 };
 
-// Complete standard property values and upgrade multipliers
 const PROPERTY_DATA = {
     "mediterranean_avenue": { name: "Mediterranean Avenue", color: "brown", purchasePrice: 60, upgradeCost: 50, baseRent: 2, upgradeRents: [2, 10, 30, 90, 160, 250] },
     "baltic_avenue": { name: "Baltic Avenue", color: "brown", purchasePrice: 60, upgradeCost: 50, baseRent: 4, upgradeRents: [4, 20, 60, 180, 320, 450] },
@@ -34,19 +32,14 @@ const PROPERTY_DATA = {
 };
 
 // ==========================================
-// FIREBASE INITIALIZATION & CONFIGURATION
+// 2. FIREBASE SETUP & LOCAL STATE
 // ==========================================
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { 
-    getFirestore, 
-    collection, 
-    doc, 
-    onSnapshot, 
-    runTransaction 
+    getFirestore, collection, doc, onSnapshot, setDoc, updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// TODO: Replace with your actual Firebase config object
+// TODO: Replace with your actual Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyYourApiKeyHere...",
   authDomain: "your-project-id.firebaseapp.com",
@@ -59,81 +52,175 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ==========================================
-// GAME STATE MANAGEMENT
-// ==========================================
-
-let currentRoomId = "TEST_ROOM_1234";
+// Local State
+let currentRoomId = null;
 let localPlayerId = null;
+let isHost = false;
 
 let liveGameState = {
     players: {},
-    properties: {},
+    properties: {}, // Tracks { owner, upgradeLevel }
     transactions: []
 };
 
-// Firebase Real-time listeners
-function initializeGameListeners(roomId) {
-    console.log(`Connecting to room: ${roomId}...`);
+// ==========================================
+// 3. UI RENDERING LOGIC
+// ==========================================
+function renderMarket() {
+    const marketList = document.getElementById('global-market-list');
+    marketList.innerHTML = '';
 
-    const propertiesRef = collection(db, `games/${roomId}/properties`);
-    onSnapshot(propertiesRef, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            liveGameState.properties[change.doc.id] = change.doc.data();
-        });
-        console.log("Properties updated from server!");
+    Object.keys(PROPERTY_DATA).forEach(propId => {
+        const prop = PROPERTY_DATA[propId];
+        const liveState = liveGameState.properties[propId];
+        
+        let owner = '';
+        let displayValue = `$${prop.purchasePrice}`;
+        
+        if (liveState && liveState.owner) {
+            owner = liveState.owner;
+            const level = liveState.upgradeLevel || 0;
+            displayValue = `$${prop.upgradeRents[level]}`;
+        }
+
+        const itemHTML = `
+            <div class="market-item" data-property-id="${propId}">
+                <div class="col-property">
+                    <div class="prop-color-bar ${prop.color}"></div>
+                    <span class="prop-name">${prop.name.replace(' ', '<br>')}</span>
+                </div>
+                <div class="col-owner">${owner}</div>
+                <div class="col-rent">${displayValue}</div>
+            </div>
+        `;
+        marketList.insertAdjacentHTML('beforeend', itemHTML);
+    });
+    attachPropertyClickListeners();
+}
+
+function renderMyAssets() {
+    const assetsGrid = document.getElementById('my-assets-grid');
+    assetsGrid.innerHTML = '';
+
+    Object.keys(liveGameState.properties).forEach(propId => {
+        const liveState = liveGameState.properties[propId];
+        
+        if (liveState.owner === localPlayerId) {
+            const prop = PROPERTY_DATA[propId];
+            const level = liveState.upgradeLevel || 0;
+            const currentRent = prop.upgradeRents[level];
+            
+            let upgradeVisual = '‎'; 
+            if (level >= 1 && level <= 4) upgradeVisual = '⌂'.repeat(level);
+            if (level === 5) upgradeVisual = '🏨';
+
+            const cardHTML = `
+                <div class="property-card" data-property-id="${propId}">
+                    <div class="property-header ${prop.color}">
+                        <h3>${prop.name.replace(' ', '<br>')}</h3>
+                    </div>
+                    <div class="property-body">
+                        <span class="rent-label">Rent</span>
+                        <h2 class="rent-price">$${currentRent}</h2>
+                    </div>
+                    <div class="upgrade-status">
+                        <span class="house-icon ${prop.color}-text">${upgradeVisual}</span>
+                        <span class="arrow-icon">⬆</span>
+                    </div>
+                </div>
+            `;
+            assetsGrid.insertAdjacentHTML('beforeend', cardHTML);
+        }
+    });
+    attachPropertyClickListeners();
+}
+
+function renderTransactions() {
+    const transList = document.getElementById('global-transaction-list');
+    transList.innerHTML = '';
+
+    const sortedTrans = [...liveGameState.transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    sortedTrans.forEach(tx => {
+        const txHTML = `
+            <div class="transaction-item" data-tx-id="${tx.id}">
+                <div class="col-from">${tx.from}</div>
+                <div class="col-to">${tx.to}</div>
+                <div class="col-amount">$${tx.amount}</div>
+                <div class="col-details">${tx.details}</div>
+            </div>
+        `;
+        transList.insertAdjacentHTML('beforeend', txHTML);
     });
 
-    const playersRef = collection(db, `games/${roomId}/players`);
-    onSnapshot(playersRef, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            liveGameState.players[change.doc.id] = change.doc.data();
+    // Reattach listeners to newly rendered transactions for the History Modal
+    const historyModal = document.getElementById('history-action-modal');
+    document.querySelectorAll('.transaction-item').forEach(item => {
+        item.addEventListener('click', () => {
+            historyModal.classList.remove('hidden');
         });
-        console.log("Players updated from server!");
-    });
-
-    const transactionsRef = collection(db, `games/${roomId}/transactions`);
-    onSnapshot(transactionsRef, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-                liveGameState.transactions.push({ id: change.doc.id, ...change.doc.data() });
-            }
-        });
-        console.log("New transaction received!");
     });
 }
 
-// ==========================================
-// LOBBY, WAITING ROOM & SESSION MANAGEMENT
-// ==========================================
+function attachPropertyClickListeners() {
+    const propertyModal = document.getElementById('property-modal');
+    const transactionModal = document.getElementById('transaction-modal');
 
-let selectedAvatarId = null;
-let isHost = false;
-let activeGameCode = null;
+    document.querySelectorAll('.property-card, .market-item').forEach(element => {
+        element.addEventListener('click', () => {
+            const selectedAvatar = document.querySelector('.avatar-item.selected');
+            const selectedBank = document.querySelector('.bank-btn.selected');
+            
+            if (selectedAvatar || selectedBank) {
+                // Combo triggered
+                if (selectedAvatar) selectedAvatar.classList.remove('selected');
+                if (selectedBank) selectedBank.classList.remove('selected');
+                transactionModal.classList.remove('hidden');
+            } else {
+                // Standard Info click
+                const propertyId = element.getAttribute('data-property-id');
+                populatePropertyModal(propertyId);
+                propertyModal.classList.remove('hidden');
+            }
+        });
+    });
+}
 
+function populatePropertyModal(propertyId) {
+    if (!propertyId || !PROPERTY_DATA[propertyId]) return;
+    
+    const prop = PROPERTY_DATA[propertyId];
+    const propertyModal = document.getElementById('property-modal');
+    
+    propertyModal.querySelector('.modal-header').className = `modal-header ${prop.color}`; 
+    propertyModal.querySelector('.modal-title').innerHTML = prop.name.replace(' ', '<br>'); 
+    
+    const rows = propertyModal.querySelectorAll('.stat-row');
+    rows[0].querySelector('strong').textContent = `$${prop.baseRent}`;
+    
+    for (let i = 2; i <= 6; i++) {
+        rows[i].querySelectorAll('span')[1].textContent = `$${prop.upgradeCost}`;
+        rows[i].querySelectorAll('span')[2].textContent = `$${prop.upgradeRents[i-1]}`;
+    }
+    
+    propertyModal.querySelector('.btn-pay').innerHTML = `Pay Bank $${prop.upgradeCost}<br><small>Upgrade</small>`;
+}
+
+
+// ==========================================
+// 4. CORE APP & DOM INITIALIZATION
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- LOBBY & RECENT GAMES ---
+    let tempRecentCode = null;
     const landingPage = document.getElementById('landing-page');
     const lobbyPage = document.getElementById('lobby-page');
     const mainApp = document.getElementById('main-app');
-    
-    const btnCreateGame = document.getElementById('btn-create-game');
-    const btnJoinGame = document.getElementById('btn-join-game');
-    const joinCodeInput = document.getElementById('join-code-input');
-    const lobbyCards = document.querySelectorAll('.lobby-avatar-card');
-    const btnStartGame = document.getElementById('btn-start-game');
-    const waitingHostText = document.getElementById('waiting-host-text');
-    const lobbyCodeDisplay = document.getElementById('lobby-room-code-display');
-    
-    // Header Profile Menu
-    const profileTrigger = document.getElementById('header-profile-trigger');
-    const profileModal = document.getElementById('profile-menu-modal');
-    const modalRoomCodeText = document.getElementById('modal-room-code-text');
-    const btnReturnLanding = document.getElementById('btn-return-landing');
 
-    // Load Recent Games from LocalStorage
     function loadRecentGames() {
-        const container = document.getElementById('recent-games-container');
         const list = document.getElementById('recent-games-list');
+        const container = document.getElementById('recent-games-container');
         const saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
         
         if (saved.length === 0) {
@@ -150,9 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.className = 'btn-request modal-action-btn';
             btn.style.margin = '0';
             btn.style.padding = '10px';
-            btn.style.fontSize = '14px';
+            
             btn.addEventListener('click', () => {
-                joinCodeInput.value = code;
+                tempRecentCode = code;
+                document.getElementById('recent-modal-code').textContent = code;
+                document.getElementById('recent-game-modal').classList.remove('hidden');
             });
             list.appendChild(btn);
         });
@@ -161,26 +250,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveRecentGame(code) {
         let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
         if (!saved.includes(code)) {
-            saved.unshift(code); // Add to top
-            if (saved.length > 3) saved.pop(); // Keep max 3
+            saved.unshift(code);
+            if (saved.length > 3) saved.pop(); 
             localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
         }
     }
 
-    loadRecentGames();
-
-    // 1. Avatar selection in Lobby
-    lobbyCards.forEach(card => {
-        card.addEventListener('click', () => {
-            if (card.classList.contains('taken')) return;
-            
-            lobbyCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedAvatarId = card.getAttribute('data-avatar-id');
-        });
+    // Recent Game Modal Actions
+    document.getElementById('btn-recent-play').addEventListener('click', () => {
+        document.getElementById('join-code-input').value = tempRecentCode;
+        document.getElementById('recent-game-modal').classList.add('hidden');
     });
 
-    // Code generator helper
+    document.getElementById('btn-recent-delete').addEventListener('click', () => {
+        let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
+        saved = saved.filter(c => c !== tempRecentCode);
+        localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
+        loadRecentGames();
+        document.getElementById('recent-game-modal').classList.add('hidden');
+    });
+
+    loadRecentGames();
+
+    // Generate Room Code
     function generateRoomCode() {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         let res = '';
@@ -188,217 +280,163 @@ document.addEventListener('DOMContentLoaded', () => {
         return res;
     }
 
-    // 2. Create Game (Host Action)
-    btnCreateGame.addEventListener('click', () => {
-        activeGameCode = generateRoomCode();
+    // Avatar Selection in Lobby
+    const lobbyCards = document.querySelectorAll('.lobby-avatar-card');
+    lobbyCards.forEach(card => {
+        card.addEventListener('click', () => {
+            if (card.classList.contains('taken')) return;
+            lobbyCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            localPlayerId = card.getAttribute('data-avatar-id');
+        });
+    });
+
+    // Create & Join Buttons
+    document.getElementById('btn-create-game').addEventListener('click', async () => {
+        currentRoomId = generateRoomCode();
         isHost = true;
+        
+        // Write initial room state to Firebase
+        await setDoc(doc(db, "games", currentRoomId), { status: 'waiting', host: 'LocalHostId' });
         
         landingPage.classList.add('hidden');
         lobbyPage.classList.remove('hidden');
+        document.getElementById('lobby-room-code-display').textContent = currentRoomId;
+        document.getElementById('btn-start-game').classList.remove('hidden');
+        document.getElementById('waiting-host-text').style.display = 'none';
         
-        lobbyCodeDisplay.textContent = activeGameCode;
-        btnStartGame.classList.remove('hidden'); // Host gets start button
-        waitingHostText.style.display = 'none';
-        
-        saveRecentGame(activeGameCode);
+        saveRecentGame(currentRoomId);
+        listenToRoomState(currentRoomId); 
     });
 
-    // 3. Join Game (Player Action)
-    btnJoinGame.addEventListener('click', () => {
-        const code = joinCodeInput.value.toUpperCase();
-        if (code.length !== 4) {
-            alert("Please enter a valid 4-digit code.");
-            return;
-        }
+    document.getElementById('btn-join-game').addEventListener('click', () => {
+        const code = document.getElementById('join-code-input').value.toUpperCase();
+        if (code.length !== 4) return;
 
-        activeGameCode = code;
+        currentRoomId = code;
         isHost = false;
 
         landingPage.classList.add('hidden');
         lobbyPage.classList.remove('hidden');
+        document.getElementById('lobby-room-code-display').textContent = currentRoomId;
+        document.getElementById('btn-start-game').classList.add('hidden');
+        document.getElementById('waiting-host-text').style.display = 'block';
 
-        lobbyCodeDisplay.textContent = activeGameCode;
-        btnStartGame.classList.add('hidden'); // Non-host hides start button
-        waitingHostText.style.display = 'block';
-
-        saveRecentGame(activeGameCode);
+        saveRecentGame(currentRoomId);
+        listenToRoomState(currentRoomId);
     });
 
-    // 4. Host Starts Game -> Triggers Transition to Main App & Payout
-    btnStartGame.addEventListener('click', () => {
-        if (!selectedAvatarId) {
+    // Host Starts Game
+    document.getElementById('btn-start-game').addEventListener('click', async () => {
+        if (!localPlayerId) {
             alert("Please select your avatar before starting!");
             return;
         }
-
-        transitionToMainApp(selectedAvatarId, activeGameCode);
+        await updateDoc(doc(db, "games", currentRoomId), { status: 'active' });
     });
 
-    function transitionToMainApp(avatarId, roomId) {
-        lobbyPage.classList.add('hidden');
-        mainApp.classList.remove('hidden');
-
-        // Update Header
-        document.querySelector('.player-name').textContent = avatarId;
-        
-        // Issue Starting Cash ($1500)
-        const startingTx = {
-            from: "Bank",
-            to: avatarId,
-            amount: GAME_CONSTANTS.startingBalance,
-            details: "Pass Go:<br>Starting Balance",
-            timestamp: new Date().toISOString()
-        };
-        liveGameState.transactions.push(startingTx);
-        console.log(`Initialized game in room ${roomId}. Issued $1500 to ${avatarId}`);
+    // Firebase Listener for Room Status
+    function listenToRoomState(roomId) {
+        onSnapshot(doc(db, "games", roomId), (docSnap) => {
+            if (docSnap.exists() && docSnap.data().status === 'active') {
+                transitionToMainApp();
+            }
+        });
     }
 
-    // 5. Header Profile Trigger Modal
-    profileTrigger.addEventListener('click', () => {
-        modalRoomCodeText.textContent = activeGameCode || "TEST";
-        profileModal.classList.remove('hidden');
+    // Launch Game for All
+    function transitionToMainApp() {
+        lobbyPage.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        document.querySelector('.player-name').textContent = localPlayerId || "Player";
+        
+        // Ensure lists are clean, payout Bank to Player
+        if(localPlayerId) {
+            liveGameState.transactions.push({
+                id: "start_" + localPlayerId,
+                from: "Bank",
+                to: localPlayerId,
+                amount: GAME_CONSTANTS.startingBalance,
+                details: "Pass Go:<br>Starting Balance",
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        renderMyAssets();
+        renderMarket();
+        renderTransactions();
+        
+        // TODO: call initializeGameListeners(currentRoomId) to start syncing properties
+    }
+
+    // Header Profile Menu Actions
+    document.getElementById('header-profile-trigger').addEventListener('click', () => {
+        document.getElementById('modal-room-code-text').textContent = currentRoomId || "TEST";
+        document.getElementById('profile-menu-modal').classList.remove('hidden');
     });
 
-    // Return to Landing Page from Profile Menu
-    btnReturnLanding.addEventListener('click', () => {
-        profileModal.classList.add('hidden');
+    document.getElementById('btn-return-landing').addEventListener('click', () => {
+        document.getElementById('profile-menu-modal').classList.add('hidden');
         mainApp.classList.add('hidden');
-        lobbyPage.classList.add('hidden');
         landingPage.classList.remove('hidden');
         loadRecentGames();
     });
 
-    // Force uppercase code entry
-    joinCodeInput.addEventListener('input', (e) => {
+    document.getElementById('join-code-input').addEventListener('input', (e) => {
         e.target.value = e.target.value.toUpperCase();
     });
-});
 
-// ==========================================
-// DOM EVENTS & UI LOGIC
-// ==========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. TAB NAVIGATION LOGIC ---
+    // --- TAB NAVIGATION ---
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabBtns.forEach((btn, index) => {
         btn.addEventListener('click', () => {
             tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => {
-                c.classList.remove('active');
-                c.classList.add('hidden');
-            });
-
+            tabContents.forEach(c => { c.classList.remove('active'); c.classList.add('hidden'); });
             btn.classList.add('active');
             tabContents[index].classList.remove('hidden');
             tabContents[index].classList.add('active');
         });
     });
 
-    // --- 2. DYNAMIC PROPERTY MODAL INJECTION ---
-    const propertyModal = document.getElementById('property-modal');
-    
-    function populatePropertyModal(propertyId) {
-        if (!propertyId || !PROPERTY_DATA[propertyId]) return;
-        
-        const prop = PROPERTY_DATA[propertyId];
-        
-        // Update Header Color
-        const header = propertyModal.querySelector('.modal-header');
-        header.className = `modal-header ${prop.color}`; 
-        
-        // Update Title (Splits on first space to fit in the card)
-        const title = propertyModal.querySelector('.modal-title');
-        title.innerHTML = prop.name.replace(' ', '<br>'); 
-        
-        // Update Rent & Upgrade Stats Table
-        const rows = propertyModal.querySelectorAll('.stat-row');
-        
-        // Base Rent
-        rows[0].querySelector('strong').textContent = `$${prop.baseRent}`;
-        
-        // Multiplier Rents (1x through Hotel)
-        for (let i = 2; i <= 6; i++) {
-            rows[i].querySelectorAll('span')[1].textContent = `$${prop.upgradeCost}`;
-            rows[i].querySelectorAll('span')[2].textContent = `$${prop.upgradeRents[i-1]}`;
-        }
-        
-        // Update the Pay Bank Button
-        const payBtn = propertyModal.querySelector('.btn-pay');
-        payBtn.innerHTML = `Pay Bank $${prop.upgradeCost}<br><small>Upgrade</small>`;
-    }
-
-    // --- 3. MODAL TOGGLING & COMBO LOGIC ---
-    const historyModal = document.getElementById('history-action-modal');
-    const transactionModal = document.getElementById('transaction-modal');
-
-    const propertyElements = document.querySelectorAll('.property-card, .market-item');
-    propertyElements.forEach(element => {
-        element.addEventListener('click', () => {
-            const selectedAvatar = document.querySelector('.avatar-item.selected');
-            const selectedBank = document.querySelector('.bank-btn.selected');
-            
-            if (selectedAvatar || selectedBank) {
-                // Combo: Avatar + Property (Goes to Payment)
-                if (selectedAvatar) selectedAvatar.classList.remove('selected');
-                if (selectedBank) selectedBank.classList.remove('selected');
-                
-                transactionModal.classList.remove('hidden');
-            } else {
-                // Standard: Inject data and open Info
-                const propertyId = element.getAttribute('data-property-id');
-                populatePropertyModal(propertyId);
-                
-                propertyModal.classList.remove('hidden');
-            }
-        });
-    });
-
-    const transactionItems = document.querySelectorAll('.transaction-item');
-    transactionItems.forEach(item => {
-        item.addEventListener('click', () => {
-            historyModal.classList.remove('hidden');
-        });
-    });
-
-    // --- 4. CLOSING MODALS ---
-    const closeBtns = document.querySelectorAll('.close-btn');
-    closeBtns.forEach(btn => {
+    // --- CLOSING MODALS ---
+    document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const modal = e.target.closest('.modal-overlay');
-            if (modal) {
-                modal.classList.add('hidden');
-            }
+            if (modal) modal.classList.add('hidden');
         });
     });
 
-    const modals = document.querySelectorAll('.modal-overlay');
-    modals.forEach(modal => {
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-            }
+            if (e.target === modal) modal.classList.add('hidden');
         });
     });
 
-    // --- 5. AVATAR & BANK SELECTION LOGIC ---
-    const avatarItems = document.querySelectorAll('.avatar-item');
+    // Make big action buttons close modals visually for now
+    document.querySelectorAll('.modal-action-btn:not(#btn-recent-play):not(#btn-recent-delete):not(#btn-start-game):not(#btn-create-game):not(#btn-join-game), .request-property-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const modal = e.target.closest('.modal-overlay');
+            if (modal) modal.classList.add('hidden');
+        });
+    });
+
+    // --- IN-GAME AVATAR/BANK SELECTION RIBBON ---
+    const appAvatarItems = document.querySelectorAll('.avatar-ribbon .avatar-item');
     const bankBtn = document.querySelector('.bank-btn');
 
-    function clearAllSelections() {
-        avatarItems.forEach(a => a.classList.remove('selected'));
+    function clearAppSelections() {
+        appAvatarItems.forEach(a => a.classList.remove('selected'));
         bankBtn.classList.remove('selected');
     }
 
-    avatarItems.forEach(item => {
+    appAvatarItems.forEach(item => {
         item.addEventListener('click', () => {
             if (item.classList.contains('selected')) {
                 item.classList.remove('selected');
             } else {
-                clearAllSelections();
+                clearAppSelections();
                 item.classList.add('selected');
             }
         });
@@ -408,21 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (bankBtn.classList.contains('selected')) {
             bankBtn.classList.remove('selected');
         } else {
-            clearAllSelections();
+            clearAppSelections();
             bankBtn.classList.add('selected');
         }
-    });
-
-    // --- 6. ACTION BUTTON RESOLUTIONS ---
-    const actionBtns = document.querySelectorAll('.modal-action-btn, .request-property-btn');
-    actionBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modal = e.target.closest('.modal-overlay');
-            if (modal) {
-                modal.classList.add('hidden');
-            } else if (btn.classList.contains('request-property-btn')) {
-                alert("This will open the Bank's unowned property list!");
-            }
-        });
     });
 });
