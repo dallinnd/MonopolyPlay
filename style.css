@@ -1,3 +1,6 @@
+/* =========================================================
+   1. VARIABLES & RESETS
+   ========================================================= */
 :root {
     /* Avatar Backgrounds */
     --swag-bg: #007c41; 
@@ -17,7 +20,7 @@
     --prop-green: #118c2a;
     --prop-dark-blue: #16248c;
 
-    /* App Theme */
+    /* App Theme Colors */
     --bg-color: #d8ebd2;
     --card-bg: #ffffff;
     --text-main: #000000;
@@ -35,10 +38,6 @@
     font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
 }
 
-.hidden {
-    display: none !important;
-}
-
 body {
     background-color: #f0f0f0;
     display: flex;
@@ -48,6 +47,41 @@ body {
     overflow: hidden;
 }
 
+/* =========================================================
+   2. UTILITY CLASSES (Colors, States, Globals)
+   ========================================================= */
+.hidden {
+    display: none !important;
+}
+
+/* Avatar Colors */
+.swag-bg { background-color: var(--swag-bg); }
+.giggles-bg { background-color: var(--giggles-bg); }
+.hearts-bg { background-color: var(--hearts-bg); }
+.blush-bg { background-color: var(--blush-bg); }
+.party-bg { background-color: var(--party-bg); }
+.freeze-bg { background-color: var(--freeze-bg); }
+
+/* Property Colors */
+.brown { background-color: var(--prop-brown); }
+.orange { background-color: var(--prop-orange); }
+.red { background-color: var(--prop-red); }
+.yellow { background-color: var(--prop-yellow); }
+.green { background-color: var(--prop-green); }
+.light-blue { background-color: var(--prop-light-blue); }
+.pink { background-color: var(--prop-pink); }
+.dark-blue { background-color: var(--prop-dark-blue); }
+.light-blue-text { color: var(--prop-light-blue); }
+.pink-text { color: var(--prop-pink); }
+.dark-blue-text { color: var(--prop-dark-blue); }
+
+.selected {
+    border-color: var(--select-gold) !important;
+}
+
+/* =========================================================
+   3. LAYOUT & CONTAINERS
+   ========================================================= */
 .app-container {
     background-color: var(--bg-color);
     width: 100%;
@@ -59,7 +93,49 @@ body {
     flex-direction: column; 
 }
 
-/* Header Styles */
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.content-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* =========================================================
+   4. LOBBY & WAITING ROOM
+   ========================================================= */
+.lobby-avatar-card {
+    background: white;
+    padding: 15px 10px;
+    border-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.lobby-avatar-card.taken {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #e0e0e0;
+}
+
+.lobby-name-tag {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* =========================================================
+   5. HEADER & AVATAR RIBBON
+   ========================================================= */
 .player-header {
     display: flex;
     justify-content: space-between;
@@ -77,6 +153,11 @@ body {
     gap: 15px;
 }
 
+.player-name {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
 .avatar-badge {
     width: 30px;
     height: 30px;
@@ -87,38 +168,12 @@ body {
     font-size: 20px;
 }
 
-.swag-bg { background-color: var(--swag-bg); }
-.giggles-bg { background-color: var(--giggles-bg); }
-.hearts-bg { background-color: var(--hearts-bg); }
-.blush-bg { background-color: var(--blush-bg); }
-.party-bg { background-color: var(--party-bg); }
-.freeze-bg { background-color: var(--freeze-bg); }
-
-.player-name {
-    font-size: 16px;
-    margin-bottom: 5px;
+.large-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 35px;
 }
 
-.bank-btn {
-    background: black;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.bank-btn.selected {
-    border: 3px solid var(--select-gold);
-    background-color: #333;
-}
-
-/* Avatar Ribbon */
 .avatar-ribbon {
     display: flex;
     gap: 10px;
@@ -148,7 +203,28 @@ body {
     font-weight: bold;
 }
 
-/* Tab Navigation */
+.bank-btn {
+    background: black;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bank-btn.selected {
+    border: 3px solid var(--select-gold);
+    background-color: #333;
+}
+
+/* =========================================================
+   6. TAB NAVIGATION
+   ========================================================= */
 .tab-navigation {
     display: flex;
     justify-content: space-between;
@@ -179,32 +255,9 @@ body {
     color: white;
 }
 
-.break-line {
-    border-top: 2px solid white;
-    padding-bottom: 3px;
-    box-shadow: 0 0px 20px rgba(0,0,0,0.1);
-}
-
-/* Main Content Area */
-.content-area {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 20px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.content-area::-webkit-scrollbar {
-    display: none;
-}
-
 .tab-content {
     display: block;
     animation: fadeIn 0.3s ease;
-}
-
-.tab-content.hidden {
-    display: none;
 }
 
 @keyframes fadeIn {
@@ -212,29 +265,15 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Property Request Button */
-.request-property-btn {
-    display: block;
-    width: 70%;
-    margin: 10px auto 20px auto;
-    background: white;
-    border-radius: 2rem;
-    border: none;
-    color: var(--prop-green);
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 1.3;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-    padding: 10px;
+.break-line {
+    border-top: 2px solid white;
+    padding-bottom: 3px;
+    box-shadow: 0 0px 20px rgba(0,0,0,0.1);
 }
 
-.request-property-btn:active {
-    transform: scale(0.97);
-}
-
-/* Property Grid */
+/* =========================================================
+   7. ASSETS TAB (Property Grid)
+   ========================================================= */
 .property-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -297,10 +336,6 @@ body {
 }
 
 .house-icon { font-size: 20px; font-weight: 1000;}
-.light-blue-text { color: var(--prop-light-blue); }
-.pink-text { color: var(--prop-pink); }
-.dark-blue-text { color: var(--prop-dark-blue); }
-
 .arrow-icon {
     border-radius: 2rem;
     width: 20px; 
@@ -314,12 +349,9 @@ body {
     justify-content: center;
 }
 
-/* Shared Selection State */
-.selected {
-    border-color: var(--select-gold);
-}
-
-/* Market View Styles */
+/* =========================================================
+   8. MARKET TAB (List Layout)
+   ========================================================= */
 .market-container {
     background: var(--card-bg);
     border-radius: 2rem;
@@ -351,7 +383,6 @@ body {
 .market-item:last-child {
     border-bottom: none;
 }
-
 .market-item:active {
     background-color: #f9f9f9;
 }
@@ -390,16 +421,9 @@ body {
     flex-shrink: 0;
 }
 
-.brown { background-color: var(--prop-brown); }
-.orange { background-color: var(--prop-orange); }
-.red { background-color: var(--prop-red); }
-.yellow { background-color: var(--prop-yellow); }
-.green { background-color: var(--prop-green); }
-.light-blue { background-color: var(--prop-light-blue); }
-.pink { background-color: var(--prop-pink); }
-.dark-blue { background-color: var(--prop-dark-blue); }
-
-/* Transactions View Styles */
+/* =========================================================
+   9. TRANSACTIONS TAB (Ledger Layout)
+   ========================================================= */
 .transactions-container {
     background: var(--card-bg);
     border-radius: 2rem;
@@ -454,7 +478,9 @@ body {
     line-height: 1.2;
 }
 
-/* Modal Overlays */
+/* =========================================================
+   10. MODALS (Overlays, Cards, Content)
+   ========================================================= */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -467,10 +493,6 @@ body {
     justify-content: center;
     z-index: 1000;
     padding: 20px;
-}
-
-.modal-overlay.hidden {
-    display: none;
 }
 
 .modal-card {
@@ -488,9 +510,8 @@ body {
     to { transform: scale(1); opacity: 1; }
 }
 
-/* Update this class to add side padding */
 .modal-header {
-    padding: 15px 50px; /* 50px side padding prevents text from hiding under absolute buttons */
+    padding: 15px 50px; 
     color: white;
     display: flex;
     align-items: center;
@@ -499,23 +520,21 @@ body {
     min-height: 70px;
 }
 
-/* Update this to remove the space-between that was conflicting */
 .gray-header {
     background-color: #d9d9d9;
     color: black;
-    justify-content: center; 
-}
-
-/* Add this new class to position the avatar in the Transaction modal perfectly */
-.header-avatar {
-    position: absolute;
-    right: 15px;
+    justify-content: center;
 }
 
 .orange-header {
     background-color: var(--request-orange);
     color: white;
     justify-content: center;
+}
+
+.header-avatar {
+    position: absolute;
+    right: 15px;
 }
 
 .close-btn {
@@ -534,9 +553,7 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.close-btn.black-text {
-    color: black;
-}
+.close-btn.black-text { color: black; }
 
 .modal-title {
     font-size: 18px;
@@ -544,7 +561,6 @@ body {
     line-height: 1.2;
 }
 
-/* Property Modal Specifics */
 .modal-body {
     padding: 20px;
     display: flex;
@@ -552,6 +568,7 @@ body {
     gap: 15px;
 }
 
+/* Property Modal Specifics */
 .small-avatar {
     width: 35px;
     height: 35px;
@@ -572,28 +589,16 @@ body {
     align-items: center;
     gap: 10px;
 }
-
-.owner-name {
-    font-weight: bold;
-    font-size: 16px;
-}
+.owner-name { font-weight: bold; font-size: 16px; }
 
 .current-rent {
     display: flex;
     flex-direction: column;
     text-align: right;
 }
+.current-rent span { font-size: 10px; color: #666; }
+.current-rent strong { font-size: 18px; }
 
-.current-rent span {
-    font-size: 10px;
-    color: #666;
-}
-
-.current-rent strong {
-    font-size: 18px;
-}
-
-/* Stats Table inside Property Modal */
 .stats-table {
     display: flex;
     flex-direction: column;
@@ -644,17 +649,7 @@ body {
     align-items: center;
     gap: 10px;
 }
-
-.large-avatar {
-    width: 80px;
-    height: 80px;
-    font-size: 45px;
-}
-
-.party-name {
-    font-weight: bold;
-    font-size: 18px;
-}
+.party-name { font-weight: bold; font-size: 18px; }
 
 .arrow-right {
     font-size: 40px;
@@ -674,17 +669,12 @@ body {
     margin-bottom: 10px;
 }
 
-.transfer-desc-label {
-    font-size: 12px;
-    color: #666;
-}
+.transfer-desc-label { font-size: 12px; color: #666; }
+.transfer-desc { font-size: 16px; line-height: 1.3; }
 
-.transfer-desc {
-    font-size: 16px;
-    line-height: 1.3;
-}
-
-/* Modal Action Buttons */
+/* =========================================================
+   11. BUTTONS
+   ========================================================= */
 .modal-action-btn {
     width: 100%;
     margin-top: 10px;
@@ -725,38 +715,20 @@ body {
     cursor: pointer;
 }
 
-/* Lobby Waiting Room Styles */
-.lobby-avatar-card {
+.request-property-btn {
+    display: block;
+    width: 70%;
+    margin: 10px auto 20px auto;
     background: white;
-    padding: 15px 10px;
     border-radius: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    border: 3px solid transparent;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
-
-.lobby-avatar-card.taken {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: #e0e0e0;
-}
-
-.lobby-avatar-card.selected {
-    border-color: var(--select-gold);
-}
-
-.lobby-name-tag {
-    font-size: 14px;
+    border: none;
+    color: var(--prop-green);
+    font-size: 18px;
     font-weight: bold;
+    text-align: center;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    padding: 10px;
 }
-
-.large-avatar {
-    width: 60px;
-    height: 60px;
-    font-size: 35px;
-}
+.request-property-btn:active { transform: scale(0.97); }
