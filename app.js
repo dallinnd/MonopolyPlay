@@ -1,10 +1,7 @@
 // ==========================================
 // 1. GAME CONSTANTS & CONFIGURATION
 // ==========================================
-const GAME_CONSTANTS = {
-    passGoAmount: 200,
-    startingBalance: 1500
-};
+const GAME_CONSTANTS = { passGoAmount: 200, startingBalance: 1500 };
 
 const PROPERTY_DATA = {
     "mediterranean_avenue": { name: "Mediterranean Avenue", color: "brown", purchasePrice: 60, upgradeCost: 50, baseRent: 2, upgradeRents: [2, 10, 30, 90, 160, 250] },
@@ -32,14 +29,13 @@ const PROPERTY_DATA = {
 };
 
 // ==========================================
-// 2. FIREBASE SETUP & LOCAL STATE
+// 2. FIREBASE SETUP & SAFEGUARDS
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { 
     getFirestore, collection, doc, onSnapshot, setDoc, updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// TODO: Replace with your actual Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyYourApiKeyHere...",
   authDomain: "your-project-id.firebaseapp.com",
@@ -49,19 +45,18 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef123456"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let app, db;
+try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+} catch (error) {
+    console.warn("Firebase failed to init. Running offline UI mode.");
+}
 
-// Local State
 let currentRoomId = null;
 let localPlayerId = null;
 let isHost = false;
-
-let liveGameState = {
-    players: {},
-    properties: {}, // Tracks { owner, upgradeLevel }
-    transactions: []
-};
+let liveGameState = { players: {}, properties: {}, transactions: [] };
 
 // ==========================================
 // 3. UI RENDERING LOGIC
@@ -69,11 +64,9 @@ let liveGameState = {
 function renderMarket() {
     const marketList = document.getElementById('global-market-list');
     marketList.innerHTML = '';
-
     Object.keys(PROPERTY_DATA).forEach(propId => {
         const prop = PROPERTY_DATA[propId];
         const liveState = liveGameState.properties[propId];
-        
         let owner = '';
         let displayValue = `$${prop.purchasePrice}`;
         
@@ -82,7 +75,6 @@ function renderMarket() {
             const level = liveState.upgradeLevel || 0;
             displayValue = `$${prop.upgradeRents[level]}`;
         }
-
         const itemHTML = `
             <div class="market-item" data-property-id="${propId}">
                 <div class="col-property">
@@ -101,32 +93,21 @@ function renderMarket() {
 function renderMyAssets() {
     const assetsGrid = document.getElementById('my-assets-grid');
     assetsGrid.innerHTML = '';
-
     Object.keys(liveGameState.properties).forEach(propId => {
         const liveState = liveGameState.properties[propId];
-        
         if (liveState.owner === localPlayerId) {
             const prop = PROPERTY_DATA[propId];
             const level = liveState.upgradeLevel || 0;
             const currentRent = prop.upgradeRents[level];
-            
             let upgradeVisual = '‎'; 
             if (level >= 1 && level <= 4) upgradeVisual = '⌂'.repeat(level);
             if (level === 5) upgradeVisual = '🏨';
 
             const cardHTML = `
                 <div class="property-card" data-property-id="${propId}">
-                    <div class="property-header ${prop.color}">
-                        <h3>${prop.name.replace(' ', '<br>')}</h3>
-                    </div>
-                    <div class="property-body">
-                        <span class="rent-label">Rent</span>
-                        <h2 class="rent-price">$${currentRent}</h2>
-                    </div>
-                    <div class="upgrade-status">
-                        <span class="house-icon ${prop.color}-text">${upgradeVisual}</span>
-                        <span class="arrow-icon">⬆</span>
-                    </div>
+                    <div class="property-header ${prop.color}"><h3>${prop.name.replace(' ', '<br>')}</h3></div>
+                    <div class="property-body"><span class="rent-label">Rent</span><h2 class="rent-price">$${currentRent}</h2></div>
+                    <div class="upgrade-status"><span class="house-icon ${prop.color}-text">${upgradeVisual}</span><span class="arrow-icon">⬆</span></div>
                 </div>
             `;
             assetsGrid.insertAdjacentHTML('beforeend', cardHTML);
@@ -138,9 +119,7 @@ function renderMyAssets() {
 function renderTransactions() {
     const transList = document.getElementById('global-transaction-list');
     transList.innerHTML = '';
-
     const sortedTrans = [...liveGameState.transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
     sortedTrans.forEach(tx => {
         const txHTML = `
             <div class="transaction-item" data-tx-id="${tx.id}">
@@ -152,13 +131,11 @@ function renderTransactions() {
         `;
         transList.insertAdjacentHTML('beforeend', txHTML);
     });
-
-    // Reattach listeners to newly rendered transactions for the History Modal
+    
+    // Reattach listeners to generated transactions
     const historyModal = document.getElementById('history-action-modal');
     document.querySelectorAll('.transaction-item').forEach(item => {
-        item.addEventListener('click', () => {
-            historyModal.classList.remove('hidden');
-        });
+        item.addEventListener('click', () => historyModal.classList.remove('hidden'));
     });
 }
 
@@ -170,14 +147,11 @@ function attachPropertyClickListeners() {
         element.addEventListener('click', () => {
             const selectedAvatar = document.querySelector('.avatar-item.selected');
             const selectedBank = document.querySelector('.bank-btn.selected');
-            
             if (selectedAvatar || selectedBank) {
-                // Combo triggered
                 if (selectedAvatar) selectedAvatar.classList.remove('selected');
                 if (selectedBank) selectedBank.classList.remove('selected');
                 transactionModal.classList.remove('hidden');
             } else {
-                // Standard Info click
                 const propertyId = element.getAttribute('data-property-id');
                 populatePropertyModal(propertyId);
                 propertyModal.classList.remove('hidden');
@@ -188,299 +162,265 @@ function attachPropertyClickListeners() {
 
 function populatePropertyModal(propertyId) {
     if (!propertyId || !PROPERTY_DATA[propertyId]) return;
-    
     const prop = PROPERTY_DATA[propertyId];
     const propertyModal = document.getElementById('property-modal');
     
     propertyModal.querySelector('.modal-header').className = `modal-header ${prop.color}`; 
     propertyModal.querySelector('.modal-title').innerHTML = prop.name.replace(' ', '<br>'); 
-    
     const rows = propertyModal.querySelectorAll('.stat-row');
     rows[0].querySelector('strong').textContent = `$${prop.baseRent}`;
-    
     for (let i = 2; i <= 6; i++) {
         rows[i].querySelectorAll('span')[1].textContent = `$${prop.upgradeCost}`;
         rows[i].querySelectorAll('span')[2].textContent = `$${prop.upgradeRents[i-1]}`;
     }
-    
     propertyModal.querySelector('.btn-pay').innerHTML = `Pay Bank $${prop.upgradeCost}<br><small>Upgrade</small>`;
 }
 
+// ==========================================
+// 4. CORE APP & DOM EVENTS (Flattened!)
+// ==========================================
 
-// ==========================================
-// 4. CORE APP & DOM INITIALIZATION
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+let tempRecentCode = null;
+const landingPage = document.getElementById('landing-page');
+const lobbyPage = document.getElementById('lobby-page');
+const mainApp = document.getElementById('main-app');
+
+function loadRecentGames() {
+    const list = document.getElementById('recent-games-list');
+    const container = document.getElementById('recent-games-container');
+    const saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
     
-    // --- LOBBY & RECENT GAMES ---
-    let tempRecentCode = null;
-    const landingPage = document.getElementById('landing-page');
-    const lobbyPage = document.getElementById('lobby-page');
-    const mainApp = document.getElementById('main-app');
-
-    function loadRecentGames() {
-        const list = document.getElementById('recent-games-list');
-        const container = document.getElementById('recent-games-container');
-        const saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
-        
-        if (saved.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
-
-        container.style.display = 'block';
-        list.innerHTML = '';
-        
-        saved.forEach(code => {
-            const btn = document.createElement('button');
-            btn.textContent = `Room: ${code}`;
-            btn.className = 'btn-request modal-action-btn';
-            btn.style.margin = '0';
-            btn.style.padding = '10px';
-            
-            btn.addEventListener('click', () => {
-                tempRecentCode = code;
-                document.getElementById('recent-modal-code').textContent = code;
-                document.getElementById('recent-game-modal').classList.remove('hidden');
-            });
-            list.appendChild(btn);
+    if (saved.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'block';
+    list.innerHTML = '';
+    
+    saved.forEach(code => {
+        const btn = document.createElement('button');
+        btn.textContent = `Room: ${code}`;
+        btn.className = 'btn-request modal-action-btn';
+        btn.style.margin = '0';
+        btn.style.padding = '10px';
+        btn.addEventListener('click', () => {
+            tempRecentCode = code;
+            document.getElementById('recent-modal-code').textContent = code;
+            document.getElementById('recent-game-modal').classList.remove('hidden');
         });
-    }
+        list.appendChild(btn);
+    });
+}
 
-    function saveRecentGame(code) {
-        let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
-        if (!saved.includes(code)) {
-            saved.unshift(code);
-            if (saved.length > 3) saved.pop(); 
-            localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
-        }
+function saveRecentGame(code) {
+    let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
+    if (!saved.includes(code)) {
+        saved.unshift(code);
+        if (saved.length > 3) saved.pop(); 
+        localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
     }
+}
+
+// Initialize history on load
+loadRecentGames();
 
 // Recent Game Modal Actions
-    document.getElementById('btn-recent-play').addEventListener('click', () => {
-        document.getElementById('recent-game-modal').classList.add('hidden');
-        
-        // Directly execute the Join Game logic when "Play" is clicked
-        currentRoomId = tempRecentCode;
-        isHost = false;
+document.getElementById('btn-recent-play').addEventListener('click', () => {
+    document.getElementById('recent-game-modal').classList.add('hidden');
+    currentRoomId = tempRecentCode;
+    isHost = false;
 
-        landingPage.classList.add('hidden');
-        lobbyPage.classList.remove('hidden');
-        document.getElementById('lobby-room-code-display').textContent = currentRoomId;
-        document.getElementById('btn-start-game').classList.add('hidden');
-        document.getElementById('waiting-host-text').style.display = 'block';
+    landingPage.classList.add('hidden');
+    lobbyPage.classList.remove('hidden');
+    document.getElementById('lobby-room-code-display').textContent = currentRoomId;
+    document.getElementById('btn-start-game').classList.add('hidden');
+    document.getElementById('waiting-host-text').style.display = 'block';
+    saveRecentGame(currentRoomId);
+    
+    if(db) { listenToRoomState(currentRoomId); }
+});
 
-        saveRecentGame(currentRoomId);
-        
-        try {
-            listenToRoomState(currentRoomId);
-        } catch (e) {
-            console.warn("Firebase not connected yet.");
-        }
-    });
-
-    document.getElementById('btn-recent-delete').addEventListener('click', () => {
-        let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
-        saved = saved.filter(c => c !== tempRecentCode);
-        localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
-        loadRecentGames();
-        document.getElementById('recent-game-modal').classList.add('hidden');
-    });
-
+document.getElementById('btn-recent-delete').addEventListener('click', () => {
+    let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
+    saved = saved.filter(c => c !== tempRecentCode);
+    localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
     loadRecentGames();
+    document.getElementById('recent-game-modal').classList.add('hidden');
+});
 
-    // Generate Room Code
-    function generateRoomCode() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        let res = '';
-        for (let i = 0; i < 4; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
-        return res;
+// Avatar Selection in Lobby
+const lobbyCards = document.querySelectorAll('.lobby-avatar-card');
+lobbyCards.forEach(card => {
+    card.addEventListener('click', () => {
+        if (card.classList.contains('taken')) return;
+        lobbyCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        localPlayerId = card.getAttribute('data-avatar-id');
+    });
+});
+
+function generateRoomCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let res = '';
+    for (let i = 0; i < 4; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+    return res;
+}
+
+// Create New Game
+document.getElementById('btn-create-game').addEventListener('click', () => {
+    currentRoomId = generateRoomCode();
+    isHost = true;
+    
+    // UI Updates instantly
+    landingPage.classList.add('hidden');
+    lobbyPage.classList.remove('hidden');
+    document.getElementById('lobby-room-code-display').textContent = currentRoomId;
+    document.getElementById('btn-start-game').classList.remove('hidden');
+    document.getElementById('waiting-host-text').style.display = 'none';
+    saveRecentGame(currentRoomId);
+
+    // Firebase in background (does not crash UI if it fails)
+    if(db) {
+        setDoc(doc(db, "games", currentRoomId), { status: 'waiting', host: 'LocalHostId' })
+            .catch(e => console.warn("Firebase skipped"));
+        listenToRoomState(currentRoomId); 
     }
+});
 
-    // Avatar Selection in Lobby
-    const lobbyCards = document.querySelectorAll('.lobby-avatar-card');
-    lobbyCards.forEach(card => {
-        card.addEventListener('click', () => {
-            if (card.classList.contains('taken')) return;
-            lobbyCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            localPlayerId = card.getAttribute('data-avatar-id');
-        });
-    });
+// Join Game
+document.getElementById('btn-join-game').addEventListener('click', () => {
+    const code = document.getElementById('join-code-input').value.toUpperCase();
+    if (code.length !== 4) return;
 
-    // Create & Join Buttons
-    document.getElementById('btn-create-game').addEventListener('click', async () => {
-        currentRoomId = generateRoomCode();
-        isHost = true;
-        
-        try {
-            // Write initial room state to Firebase
-            await setDoc(doc(db, "games", currentRoomId), { status: 'waiting', host: 'LocalHostId' });
-            listenToRoomState(currentRoomId); 
-        } catch (error) {
-            console.warn("Firebase not fully configured. Bypassing database sync for local testing.");
-        }
-        
-        landingPage.classList.add('hidden');
-        lobbyPage.classList.remove('hidden');
-        document.getElementById('lobby-room-code-display').textContent = currentRoomId;
-        document.getElementById('btn-start-game').classList.remove('hidden');
-        document.getElementById('waiting-host-text').style.display = 'none';
-        
-        saveRecentGame(currentRoomId);
-    });
+    currentRoomId = code;
+    isHost = false;
 
-    document.getElementById('btn-join-game').addEventListener('click', () => {
-        const code = document.getElementById('join-code-input').value.toUpperCase();
-        if (code.length !== 4) return;
+    landingPage.classList.add('hidden');
+    lobbyPage.classList.remove('hidden');
+    document.getElementById('lobby-room-code-display').textContent = currentRoomId;
+    document.getElementById('btn-start-game').classList.add('hidden');
+    document.getElementById('waiting-host-text').style.display = 'block';
+    saveRecentGame(currentRoomId);
 
-        currentRoomId = code;
-        isHost = false;
+    if(db) { listenToRoomState(currentRoomId); }
+});
 
-        landingPage.classList.add('hidden');
-        lobbyPage.classList.remove('hidden');
-        document.getElementById('lobby-room-code-display').textContent = currentRoomId;
-        document.getElementById('btn-start-game').classList.add('hidden');
-        document.getElementById('waiting-host-text').style.display = 'block';
-
-        saveRecentGame(currentRoomId);
-        
-        try {
-            listenToRoomState(currentRoomId);
-        } catch (e) {
-            console.warn("Firebase not connected yet.");
-        }
-    });
-
-    // Host Starts Game
-    document.getElementById('btn-start-game').addEventListener('click', async () => {
-        if (!localPlayerId) {
-            alert("Please select your avatar before starting!");
-            return;
-        }
-        
-        try {
-            // Tell Firebase to launch the game for everyone
-            await updateDoc(doc(db, "games", currentRoomId), { status: 'active' });
-        } catch (error) {
-            console.warn("Firebase not connected. Forcing local transition for Host.");
-            transitionToMainApp(); // Force the transition locally if Firebase fails
-        }
-    });
-
-    // Firebase Listener for Room Status
-    function listenToRoomState(roomId) {
-        onSnapshot(doc(db, "games", roomId), (docSnap) => {
-            if (docSnap.exists() && docSnap.data().status === 'active') {
-                transitionToMainApp();
-            }
-        });
+// Host Starts Game
+document.getElementById('btn-start-game').addEventListener('click', () => {
+    if (!localPlayerId) { alert("Please select your avatar before starting!"); return; }
+    
+    if(db) {
+        updateDoc(doc(db, "games", currentRoomId), { status: 'active' }).catch(e => console.warn(e));
     }
+    
+    // Force transition immediately for testing (Host shouldn't wait for server response)
+    transitionToMainApp();
+});
 
-    // Launch Game for All
-    function transitionToMainApp() {
-        lobbyPage.classList.add('hidden');
-        mainApp.classList.remove('hidden');
-        document.querySelector('.player-name').textContent = localPlayerId || "Player";
-        
-        // Ensure lists are clean, payout Bank to Player
-        if(localPlayerId) {
-            liveGameState.transactions.push({
-                id: "start_" + localPlayerId,
-                from: "Bank",
-                to: localPlayerId,
-                amount: GAME_CONSTANTS.startingBalance,
-                details: "Pass Go:<br>Starting Balance",
-                timestamp: new Date().toISOString()
-            });
+function listenToRoomState(roomId) {
+    onSnapshot(doc(db, "games", roomId), (docSnap) => {
+        if (docSnap.exists() && docSnap.data().status === 'active') {
+            transitionToMainApp();
         }
-        
-        renderMyAssets();
-        renderMarket();
-        renderTransactions();
-        
-        // TODO: call initializeGameListeners(currentRoomId) to start syncing properties
-    }
-
-    // Header Profile Menu Actions
-    document.getElementById('header-profile-trigger').addEventListener('click', () => {
-        document.getElementById('modal-room-code-text').textContent = currentRoomId || "TEST";
-        document.getElementById('profile-menu-modal').classList.remove('hidden');
     });
+}
 
-    document.getElementById('btn-return-landing').addEventListener('click', () => {
-        document.getElementById('profile-menu-modal').classList.add('hidden');
-        mainApp.classList.add('hidden');
-        landingPage.classList.remove('hidden');
-        loadRecentGames();
+function transitionToMainApp() {
+    if (!localPlayerId) localPlayerId = "Observer"; 
+    
+    lobbyPage.classList.add('hidden');
+    mainApp.classList.remove('hidden');
+    document.querySelector('.player-name').textContent = localPlayerId;
+    
+    // Starting payout
+    liveGameState.transactions.push({
+        id: "start_" + localPlayerId + Math.random(),
+        from: "Bank",
+        to: localPlayerId,
+        amount: GAME_CONSTANTS.startingBalance,
+        details: "Pass Go:<br>Starting Balance",
+        timestamp: new Date().toISOString()
     });
+    
+    renderMyAssets();
+    renderMarket();
+    renderTransactions();
+}
 
-    document.getElementById('join-code-input').addEventListener('input', (e) => {
-        e.target.value = e.target.value.toUpperCase();
+// Header Profile Menu
+document.getElementById('header-profile-trigger').addEventListener('click', () => {
+    document.getElementById('modal-room-code-text').textContent = currentRoomId || "TEST";
+    document.getElementById('profile-menu-modal').classList.remove('hidden');
+});
+
+document.getElementById('btn-return-landing').addEventListener('click', () => {
+    document.getElementById('profile-menu-modal').classList.add('hidden');
+    mainApp.classList.add('hidden');
+    landingPage.classList.remove('hidden');
+    loadRecentGames();
+});
+
+document.getElementById('join-code-input').addEventListener('input', (e) => e.target.value = e.target.value.toUpperCase());
+
+// --- TABS & MODALS ---
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => { c.classList.remove('active'); c.classList.add('hidden'); });
+        btn.classList.add('active');
+        tabContents[index].classList.remove('hidden');
+        tabContents[index].classList.add('active');
     });
+});
 
-    // --- TAB NAVIGATION ---
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabBtns.forEach((btn, index) => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => { c.classList.remove('active'); c.classList.add('hidden'); });
-            btn.classList.add('active');
-            tabContents[index].classList.remove('hidden');
-            tabContents[index].classList.add('active');
-        });
+document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal-overlay');
+        if (modal) modal.classList.add('hidden');
     });
+});
 
-    // --- CLOSING MODALS ---
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modal = e.target.closest('.modal-overlay');
-            if (modal) modal.classList.add('hidden');
-        });
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
     });
+});
 
-    document.querySelectorAll('.modal-overlay').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.add('hidden');
-        });
+document.querySelectorAll('.modal-action-btn:not(#btn-recent-play):not(#btn-recent-delete):not(#btn-start-game):not(#btn-create-game):not(#btn-join-game), .request-property-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal-overlay');
+        if (modal) modal.classList.add('hidden');
     });
+});
 
-    // Make big action buttons close modals visually for now
-    document.querySelectorAll('.modal-action-btn:not(#btn-recent-play):not(#btn-recent-delete):not(#btn-start-game):not(#btn-create-game):not(#btn-join-game), .request-property-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modal = e.target.closest('.modal-overlay');
-            if (modal) modal.classList.add('hidden');
-        });
-    });
+// --- IN-GAME AVATAR/BANK SELECTION ---
+const appAvatarItems = document.querySelectorAll('.avatar-ribbon .avatar-item');
+const bankBtn = document.querySelector('.bank-btn');
 
-    // --- IN-GAME AVATAR/BANK SELECTION RIBBON ---
-    const appAvatarItems = document.querySelectorAll('.avatar-ribbon .avatar-item');
-    const bankBtn = document.querySelector('.bank-btn');
+function clearAppSelections() {
+    appAvatarItems.forEach(a => a.classList.remove('selected'));
+    bankBtn.classList.remove('selected');
+}
 
-    function clearAppSelections() {
-        appAvatarItems.forEach(a => a.classList.remove('selected'));
-        bankBtn.classList.remove('selected');
-    }
-
-    appAvatarItems.forEach(item => {
-        item.addEventListener('click', () => {
-            if (item.classList.contains('selected')) {
-                item.classList.remove('selected');
-            } else {
-                clearAppSelections();
-                item.classList.add('selected');
-            }
-        });
-    });
-
-    bankBtn.addEventListener('click', () => {
-        if (bankBtn.classList.contains('selected')) {
-            bankBtn.classList.remove('selected');
+appAvatarItems.forEach(item => {
+    item.addEventListener('click', () => {
+        if (item.classList.contains('selected')) {
+            item.classList.remove('selected');
         } else {
             clearAppSelections();
-            bankBtn.classList.add('selected');
+            item.classList.add('selected');
         }
     });
+});
+
+bankBtn.addEventListener('click', () => {
+    if (bankBtn.classList.contains('selected')) {
+        bankBtn.classList.remove('selected');
+    } else {
+        clearAppSelections();
+        bankBtn.classList.add('selected');
+    }
 });
