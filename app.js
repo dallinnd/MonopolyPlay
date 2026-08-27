@@ -104,6 +104,121 @@ function initializeGameListeners(roomId) {
 }
 
 // ==========================================
+// LOBBY & LANDING PAGE LOGIC
+// ==========================================
+
+// Global variable to hold the user's selected avatar before they join a game
+let selectedStartingAvatar = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const landingPage = document.getElementById('landing-page');
+    const mainApp = document.getElementById('main-app');
+    const landingAvatars = document.querySelectorAll('#landing-avatars .avatar-item');
+    const btnCreateGame = document.getElementById('btn-create-game');
+    const btnJoinGame = document.getElementById('btn-join-game');
+    const joinCodeInput = document.getElementById('join-code-input');
+
+    // 1. Select Avatar on Landing Page
+    landingAvatars.forEach(item => {
+        item.addEventListener('click', () => {
+            landingAvatars.forEach(a => a.classList.remove('selected'));
+            item.classList.add('selected');
+            selectedStartingAvatar = item.getAttribute('data-avatar-id');
+        });
+    });
+
+    // Helper: Generate a random 4-character room code
+    function generateRoomCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed lookalike I, 1, O, 0
+        let result = '';
+        for (let i = 0; i < 4; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // Helper: The function that issues starting money
+    function issueStartingFunds(playerId, roomId) {
+        const startingAmount = GAME_CONSTANTS.startingBalance; // $1500
+        
+        // This simulates what will eventually be sent to Firebase
+        const newTransaction = {
+            from: "Bank",
+            to: playerId,
+            amount: startingAmount,
+            details: "Pass Go:<br>Starting Balance",
+            timestamp: new Date().toISOString()
+        };
+
+        // For now, push it to our local cache for testing
+        liveGameState.transactions.push(newTransaction);
+        console.log(`Issued starting funds: Bank sent $${startingAmount} to ${playerId}`);
+        
+        // TODO (Later): write to Firestore: 
+        // addDoc(collection(db, `games/${roomId}/transactions`), newTransaction);
+    }
+
+    // Helper: Transition from Landing Page to Main Dashboard
+    function enterGameUI(roomId, playerId) {
+        currentRoomId = roomId;
+        localPlayerId = playerId;
+        
+        // Update the header visually for the local player
+        document.querySelector('.player-name').textContent = playerId;
+        
+        // Switch screens
+        landingPage.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        
+        console.log(`Successfully entered room ${roomId} as ${playerId}`);
+    }
+
+    // 2. Create Game Click
+    btnCreateGame.addEventListener('click', () => {
+        if (!selectedStartingAvatar) {
+            alert("Please select an avatar first!");
+            return;
+        }
+        
+        const newRoomCode = generateRoomCode();
+        
+        // In the future: Here we will write the default empty board state to Firebase
+        
+        issueStartingFunds(selectedStartingAvatar, newRoomCode);
+        enterGameUI(newRoomCode, selectedStartingAvatar);
+        
+        // Show the host their code so they can share it
+        alert(`Game Created! Your Join Code is: ${newRoomCode}`);
+    });
+
+    // 3. Join Game Click
+    btnJoinGame.addEventListener('click', () => {
+        const code = joinCodeInput.value.toUpperCase();
+        
+        if (!selectedStartingAvatar) {
+            alert("Please select an avatar first!");
+            return;
+        }
+        if (code.length !== 4) {
+            alert("Please enter a valid 4-digit code.");
+            return;
+        }
+        
+        // In the future: Here we will verify the code exists in Firebase
+        
+        issueStartingFunds(selectedStartingAvatar, code);
+        enterGameUI(code, selectedStartingAvatar);
+    });
+
+    // Force uppercase on input
+    joinCodeInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+});
+
+// ==========================================
 // DOM EVENTS & UI LOGIC
 // ==========================================
 
