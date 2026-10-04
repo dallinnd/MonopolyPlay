@@ -18,18 +18,18 @@
         <!-- Recent Games History -->
         <div id="recent-games-container" style="width: 100%; max-width: 350px; margin-bottom: 25px; display: none;">
             <h3 style="margin-bottom: 10px; font-size: 14px; color: #555;">Recent Games</h3>
-            <div id="recent-games-list" style="display: flex; flex-direction: column; gap: 8px;">
-                <!-- Populated dynamically via JS -->
+            <div id="recent-games-list">
+                <!-- Populated dynamically via JS as tiles -->
             </div>
         </div>
 
         <!-- Room Actions -->
         <div class="landing-actions" style="width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px;">
-            <button id="btn-create-game" class="btn-pay modal-action-btn" style="padding: 15px;">Create New Game</button>
+            <button id="btn-create-game" class="btn-pay modal-action-btn" style="padding: 15px;">HOST a game</button>
             
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                <input type="text" id="join-code-input" placeholder="4-Digit Code" maxlength="4" style="flex: 1; padding: 15px; border-radius: 20px; border: 2px solid #ccc; font-size: 16px; font-weight: bold; text-align: center; text-transform: uppercase;">
-                <button id="btn-join-game" class="btn-request modal-action-btn" style="margin-top: 0; width: auto; padding: 15px 25px;">Join</button>
+                <input type="text" id="join-code-input" placeholder="6-Digit Code" maxlength="6" style="flex: 1; padding: 15px; border-radius: 20px; border: 2px solid #ccc; font-size: 16px; font-weight: bold; text-align: center; text-transform: uppercase;">
+                <button id="btn-join-game" class="btn-request modal-action-btn" style="margin-top: 0; width: auto; padding: 15px 25px;">JOIN</button>
             </div>
         </div>
 
@@ -38,7 +38,7 @@
     <!-- LOBBY WAITING ROOM (Avatar Selection & Locking) -->
     <div id="lobby-page" class="app-container hidden" style="justify-content: center; align-items: center; padding: 40px 20px;">
         <h1 style="font-size: 24px; margin-bottom: 5px;">Waiting Room</h1>
-        <p style="color: #666; margin-bottom: 20px;">Room Code: <strong id="lobby-room-code-display" style="font-size: 20px; color: black;">----</strong></p>
+        <p style="color: #666; margin-bottom: 20px;">Room Code: <strong id="lobby-room-code-display" style="font-size: 20px; color: black;">------</strong></p>
 
         <h3 style="margin-bottom: 15px; font-size: 16px;">Choose Your Avatar</h3>
         
@@ -174,7 +174,7 @@
             <div class="modal-card">
                 <div class="modal-header gray-header">
                     <button class="close-btn black-text">⬅</button>
-                    <h2 class="modal-title">Recent Game<br><span id="recent-modal-code" style="letter-spacing: 2px;">----</span></h2>
+                    <h2 class="modal-title">Recent Game<br><span id="recent-modal-code" style="letter-spacing: 2px;">------</span></h2>
                 </div>
                 <div class="modal-body transaction-body">
                     <button id="btn-recent-play" class="btn-pay modal-action-btn">Play Game</button>
@@ -193,7 +193,7 @@
                 <div class="modal-body transaction-body" style="gap: 15px;">
                     <div>
                         <span class="transfer-desc-label">Active Room Code</span>
-                        <h1 id="modal-room-code-text" style="font-size: 32px; letter-spacing: 2px; margin-top: 5px;">----</h1>
+                        <h1 id="modal-room-code-text" style="font-size: 32px; letter-spacing: 2px; margin-top: 5px;">------</h1>
                     </div>
                     <button id="btn-return-landing" class="btn-refund modal-action-btn" style="margin-top: 10px;">Return to Landing Page</button>
                 </div>
