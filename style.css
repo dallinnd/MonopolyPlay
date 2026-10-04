@@ -732,3 +732,45 @@ body {
     padding: 10px;
 }
 .request-property-btn:active { transform: scale(0.97); }
+
+/* =========================================================
+   12. RECENT GAMES & EMPTY STATES
+   ========================================================= */
+
+#recent-games-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.recent-game-tile {
+    margin: 0 !important;
+    padding: 15px 10px !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 2px solid #ccc !important;
+    font-size: 14px !important;
+    border-radius: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.recent-game-tile:active {
+    background-color: #f0f0f0 !important;
+    border-color: #999 !important;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+    font-size: 16px;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 1rem;
+    border: 2px dashed #ccc;
+    margin-top: 20px;
+}
