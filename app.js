@@ -33,7 +33,7 @@ const PROPERTY_DATA = {
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { 
-    getFirestore, collection, doc, onSnapshot, setDoc, updateDoc 
+    getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, arrayUnion 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -56,7 +56,7 @@ try {
 let currentRoomId = null;
 let localPlayerId = null;
 let isHost = false;
-let liveGameState = { players: {}, properties: {}, transactions: [] };
+let liveGameState = { players: [], properties: {}, transactions: [] };
 
 // ==========================================
 // 3. UI RENDERING LOGIC
@@ -93,9 +93,12 @@ function renderMarket() {
 function renderMyAssets() {
     const assetsGrid = document.getElementById('my-assets-grid');
     assetsGrid.innerHTML = '';
-    Object.keys(liveGameState.properties).forEach(propId => {
+    let hasProperties = false;
+
+    Object.keys(liveGameState.properties || {}).forEach(propId => {
         const liveState = liveGameState.properties[propId];
         if (liveState.owner === localPlayerId) {
+            hasProperties = true;
             const prop = PROPERTY_DATA[propId];
             const level = liveState.upgradeLevel || 0;
             const currentRent = prop.upgradeRents[level];
@@ -113,6 +116,15 @@ function renderMyAssets() {
             assetsGrid.insertAdjacentHTML('beforeend', cardHTML);
         }
     });
+
+    if (!hasProperties) {
+        assetsGrid.insertAdjacentHTML('beforeend', `
+            <div class="empty-state">
+                Your Properties will appear here
+            </div>
+        `);
+    }
+
     attachPropertyClickListeners();
 }
 
@@ -177,7 +189,7 @@ function populatePropertyModal(propertyId) {
 }
 
 // ==========================================
-// 4. CORE APP & DOM EVENTS (Flattened!)
+// 4. CORE APP & DOM EVENTS
 // ==========================================
 
 let tempRecentCode = null;
@@ -200,9 +212,7 @@ function loadRecentGames() {
     saved.forEach(code => {
         const btn = document.createElement('button');
         btn.textContent = `Room: ${code}`;
-        btn.className = 'btn-request modal-action-btn';
-        btn.style.margin = '0';
-        btn.style.padding = '10px';
+        btn.className = 'btn-request modal-action-btn recent-game-tile';
         btn.addEventListener('click', () => {
             tempRecentCode = code;
             document.getElementById('recent-modal-code').textContent = code;
@@ -216,7 +226,7 @@ function saveRecentGame(code) {
     let saved = JSON.parse(localStorage.getItem('monopoly_recent_games')) || [];
     if (!saved.includes(code)) {
         saved.unshift(code);
-        if (saved.length > 3) saved.pop(); 
+        if (saved.length > 4) saved.pop(); 
         localStorage.setItem('monopoly_recent_games', JSON.stringify(saved));
     }
 }
@@ -251,22 +261,33 @@ document.getElementById('btn-recent-delete').addEventListener('click', () => {
 // Avatar Selection in Lobby
 const lobbyCards = document.querySelectorAll('.lobby-avatar-card');
 lobbyCards.forEach(card => {
-    card.addEventListener('click', () => {
+    card.addEventListener('click', async () => {
         if (card.classList.contains('taken')) return;
+        
         lobbyCards.forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         localPlayerId = card.getAttribute('data-avatar-id');
+
+        // Add user to Firebase players array in the room
+        if (db && currentRoomId) {
+            try {
+                await updateDoc(doc(db, "games", currentRoomId), {
+                    players: arrayUnion(localPlayerId)
+                });
+            } catch(e) { console.warn("Failed pushing avatar to DB:", e); }
+        }
     });
 });
 
 function generateRoomCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let res = '';
-    for (let i = 0; i < 4; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+    // Updated to generate a 6-digit code
+    for (let i = 0; i < 6; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
     return res;
 }
 
-// Create New Game
+// HOST a game
 document.getElementById('btn-create-game').addEventListener('click', () => {
     currentRoomId = generateRoomCode();
     isHost = true;
@@ -279,18 +300,24 @@ document.getElementById('btn-create-game').addEventListener('click', () => {
     document.getElementById('waiting-host-text').style.display = 'none';
     saveRecentGame(currentRoomId);
 
-    // Firebase in background (does not crash UI if it fails)
+    // Initialise empty DB state
     if(db) {
-        setDoc(doc(db, "games", currentRoomId), { status: 'waiting', host: 'LocalHostId' })
-            .catch(e => console.warn("Firebase skipped"));
+        setDoc(doc(db, "games", currentRoomId), { 
+            status: 'waiting', 
+            host: localPlayerId || 'Host',
+            players: [],
+            transactions: [],
+            properties: {}
+        }).catch(e => console.warn("Firebase skipped"));
         listenToRoomState(currentRoomId); 
     }
 });
 
-// Join Game
+// JOIN Game
 document.getElementById('btn-join-game').addEventListener('click', () => {
     const code = document.getElementById('join-code-input').value.toUpperCase();
-    if (code.length !== 4) return;
+    // Validate the new 6-digit length
+    if (code.length !== 6) return;
 
     currentRoomId = code;
     isHost = false;
@@ -306,21 +333,79 @@ document.getElementById('btn-join-game').addEventListener('click', () => {
 });
 
 // Host Starts Game
-document.getElementById('btn-start-game').addEventListener('click', () => {
+document.getElementById('btn-start-game').addEventListener('click', async () => {
     if (!localPlayerId) { alert("Please select your avatar before starting!"); return; }
     
-    if(db) {
-        updateDoc(doc(db, "games", currentRoomId), { status: 'active' }).catch(e => console.warn(e));
+    const startingTransactions = [];
+    const now = new Date().toISOString();
+
+    if (db) {
+        // Find everyone who joined the room to deal them starting cash
+        const playersToFund = Array.isArray(liveGameState.players) && liveGameState.players.length > 0 
+            ? liveGameState.players 
+            : [localPlayerId];
+
+        playersToFund.forEach(player => {
+            startingTransactions.push({
+                id: "start_" + player + "_" + Math.random().toString(36).substr(2, 9),
+                from: "Bank",
+                to: player,
+                amount: GAME_CONSTANTS.startingBalance,
+                details: "Starting Balance",
+                timestamp: now
+            });
+        });
+
+        try {
+            await updateDoc(doc(db, "games", currentRoomId), { 
+                status: 'active',
+                transactions: startingTransactions
+            });
+        } catch(e) { console.warn(e); }
+    } else {
+        // Offline Fallback Mode
+        liveGameState.transactions.push({
+            id: "start_" + localPlayerId + Math.random(),
+            from: "Bank",
+            to: localPlayerId,
+            amount: GAME_CONSTANTS.startingBalance,
+            details: "Starting Balance",
+            timestamp: now
+        });
+        transitionToMainApp();
     }
-    
-    // Force transition immediately for testing (Host shouldn't wait for server response)
-    transitionToMainApp();
 });
 
 function listenToRoomState(roomId) {
     onSnapshot(doc(db, "games", roomId), (docSnap) => {
-        if (docSnap.exists() && docSnap.data().status === 'active') {
-            transitionToMainApp();
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+
+            // 1. Sync & Lock Taken Avatars in Waiting Room
+            if (data.players) {
+                liveGameState.players = data.players;
+                document.querySelectorAll('.lobby-avatar-card').forEach(card => {
+                    const avatarId = card.getAttribute('data-avatar-id');
+                    if (data.players.includes(avatarId) && avatarId !== localPlayerId) {
+                        card.classList.add('taken');
+                    }
+                });
+            }
+
+            // 2. Sync Properties & Transactions
+            if (data.transactions) liveGameState.transactions = data.transactions;
+            if (data.properties) liveGameState.properties = data.properties;
+
+            // 3. Monitor Game Start Status
+            if (data.status === 'active') {
+                if (mainApp.classList.contains('hidden')) {
+                    transitionToMainApp();
+                } else {
+                    renderMyAssets();
+                    renderMarket();
+                    renderTransactions();
+                }
+            }
         }
     });
 }
@@ -331,16 +416,6 @@ function transitionToMainApp() {
     lobbyPage.classList.add('hidden');
     mainApp.classList.remove('hidden');
     document.querySelector('.player-name').textContent = localPlayerId;
-    
-    // Starting payout
-    liveGameState.transactions.push({
-        id: "start_" + localPlayerId + Math.random(),
-        from: "Bank",
-        to: localPlayerId,
-        amount: GAME_CONSTANTS.startingBalance,
-        details: "Pass Go:<br>Starting Balance",
-        timestamp: new Date().toISOString()
-    });
     
     renderMyAssets();
     renderMarket();
